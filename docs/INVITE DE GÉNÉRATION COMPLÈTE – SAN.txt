@@ -1,0 +1,146 @@
+INVITE DE GÉNÉRATION COMPLÈTE – SANKOFA
+
+Tu es un architecte logiciel et développeur full-stack expert. Génère l’intégralité du code source de l’application **SANKOFA**, une marketplace de vente et location d’œuvres d’art africaines, selon les spécifications ci-dessous.
+
+## Stack technique obligatoire
+- Frontend : Next.js 14 (App Router) + TypeScript + Tailwind CSS (PWA)
+- Backend : API routes Next.js + Supabase Edge Functions
+- Base de données : Supabase (PostgreSQL) avec RLS et schéma fourni
+- Authentification : Supabase Auth (magic link / OTP téléphone)
+- Paiement : Paynote (Mobile Money) + Stripe (cartes) – mode sandbox
+- Blockchain : Polygon (testnet Mumbai) via ethers.js (certificats d’authenticité)
+- Stockage : Supabase Storage (photos, PDF)
+- Notifications : Email (Resend) + WhatsApp (Twilio) + PWA push
+- Logging : Sentry + Logtail (fichiers de config)
+- Hébergement : Vercel (avec configuration adaptée)
+
+## Structure du projet à générer
+- Dossier `src/` avec :
+  - `app/` (pages : accueil, catalogue, fiche œuvre, panier, paiement, dashboard artiste, espace acheteur, admin, location)
+  - `components/ui/` (composants réutilisables : Button, Card, Modal, FormField, Stepper…)
+  - `lib/` (supabase client, paynote client, blockchain, utils)
+  - `hooks/` (useAuth, useCart, useRental, etc.)
+  - `types/` (interfaces TypeScript)
+- Fichiers de configuration : `tailwind.config.js` (avec les couleurs et tokens fournis), `next.config.js` (PWA), `vercel.json`, `supabase/migrations/` (schéma SQL)
+- Tests : `__tests__/` (Jest, Supertest, Cypress)
+- Documentation : `README.md` (installation, variables d’environnement, déploiement)
+
+## Schéma de base de données (PostgreSQL – extrait)
+```sql
+-- Tables : users, artists, artworks, orders, escrow_transactions, certificates, rentals, rental_payments, litigations, reviews.
+-- Contraintes RLS : voir spécifications détaillées (artiste ne voit que ses œuvres, acheteur ne voit que ses commandes, admin tout).
+```
+
+## Fonctionnalités à implémenter (MVP + location V2)
+
+### Côté public (sans login)
+- Page d’accueil avec grille d’œuvres (filtres: style, pays, prix, disponibilité location/achat)
+- Recherche plein texte
+- Fiche œuvre détaillée (carrousel photos, vidéo, description, artiste, prix, option location)
+- Inscription / connexion (email/téléphone + OTP)
+
+### Côté acheteur (connecté)
+- Panier (ajout/suppression, calcul frais livraison)
+- Paiement par Mobile Money (Orange Money, MTN MoMo) via Paynote – avec séquestre (escrow)
+- Paiement par carte (Stripe)
+- Suivi de commande (timeline : payé → expédié → livré)
+- Délai de rétractation 48h (bouton « Signaler un problème »)
+- Avis et notation des artistes
+- Espace « Mes locations » (V2) : choix durée (1/3/6 mois), option d’achat avec déduction des loyers
+
+### Côté artiste (connecté)
+- Inscription avec vérification (upload CNI + selfie) – validation admin
+- Académie SANKOFA (3 modules obligatoires : photographie, emballage, description) avec quiz
+- Dépôt d’œuvre (formulaire : titre, description, dimensions, matériaux, prix, photos, option location)
+- Tableau de bord : ventes, vues, gains, liste des œuvres, commandes à expédier
+- Génération d’étiquette d’expédition (PDF) et confirmation d’envoi
+- Réception des paiements sur Mobile Money après validation acheteur
+
+### Côté administrateur
+- Validation des inscriptions artistes (documents)
+- Validation des œuvres (refus possible avec motif)
+- Gestion des litiges (médiation, remboursement partiel/total)
+- Tableau de bord KPIs (GMV, nombre de commandes, taux de litiges, etc.)
+
+### Fonctionnalités transverses
+- Certificat d’authenticité : généré automatiquement après validation acheteur (PDF avec QR code), hash stocké sur Polygon (testnet)
+- Notifications : email + WhatsApp pour événements (vente, expédition, litige)
+- PWA : manifest, service worker, notifications push
+
+## Design system (à coder dans tailwind.config.js et composants)
+Couleurs :
+- primary: '#C75C3A' (terre cuite)
+- secondary: '#E8D9C6' (sable)
+- dark: '#1E1B1A' (nuit)
+- accent: '#D9A13B' (or ocre)
+- success: '#2A7A3E', error: '#B33C2E', info: '#2A6B8F'
+
+Typographie : titres en Playfair Display, corps en Inter.
+Composants : Button (primary, secondary, danger), Card, Modal, FormField, Stepper, ArtworkCard, RentalOptionCard.
+Accessibilité : WCAG AA (contraste, focus visible, cibles ≥44px).
+
+## Variables d’environnement (à générer dans un fichier .env.example)
+- NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- PAYNOTE_API_KEY, PAYNOTE_WEBHOOK_SECRET
+- STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+- TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER
+- RESEND_API_KEY
+- NEXT_PUBLIC_SENTRY_DSN
+- PRIVATE_KEY_POLYGON (pour signer les transactions)
+
+## Instructions de génération
+- Produis l’arborescence complète des fichiers et leur contenu.
+- Pour chaque fichier, écris le code complet et fonctionnel.
+- Utilise des commentaires pour expliquer les parties complexes.
+- Fournis les commandes npm pour installer les dépendances.
+- Inclus un fichier `supabase/migrations/init.sql` pour créer les tables et les politiques RLS.
+- Génère également les tests unitaires pour les fonctions critiques (calcul commission, séquestre, validation formulaire).
+- Ajoute un fichier `README.md` avec les étapes d’installation, de configuration (variables d’environnement) et de déploiement sur Vercel.
+
+## Contraintes de sécurité
+- Aucune clé API en clair dans le code (utilisation des variables d’environnement).
+- Row Level Security (RLS) activée sur toutes les tables Supabase.
+- Validation des entrées utilisateur côté serveur.
+- Rate limiting sur les routes sensibles (paiement, inscription).
+
+## Dépendances principales (package.json)
+```json
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/ssr": "^0.1.0",
+    "next": "14.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.1",
+    "@paynote/paynote-js": "^1.0.0",
+    "@stripe/stripe-js": "^2.2.0",
+    "ethers": "^6.10.0",
+    "twilio": "^4.19.0",
+    "resend": "^2.0.0",
+    "@sentry/nextjs": "^7.100.0",
+    "react-hook-form": "^7.51.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2",
+    "jest": "^29.7.0",
+    "cypress": "^13.7.0",
+    "supertest": "^6.3.4"
+  }
+}
+```
+
+## Résultat attendu
+- Un projet Next.js complet, prêt à être déployé sur Vercel.
+- Toutes les pages et composants fonctionnels.
+- Les intégrations avec Paynote (sandbox), Stripe (test), Polygon (testnet) simulables.
+- Une documentation claire pour lancer l’application en local.
+
+Génère maintenant l’intégralité du code.
+```
+
+---
+
+Cette invite peut être utilisée avec n’importe quel assistant IA capable de générer des projets entiers (Deepseek Coder, GPT-4 avec capacité d’écriture de fichiers, ou des outils comme `create-next-app` augmenté). Elle reprend **tous les livrables** (cahier des charges, design system, UX, débogage, modèle économique) et les transforme en spécifications exécutables.

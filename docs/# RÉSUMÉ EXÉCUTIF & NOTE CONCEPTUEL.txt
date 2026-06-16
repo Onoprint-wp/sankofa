@@ -1,0 +1,135 @@
+# RÉSUMÉ EXÉCUTIF & NOTE CONCEPTUELLE  
+## Projet SANKOFA – Marketplace d’art africain avec certification blockchain et logistique intégrée
+
+---
+
+## 1. RÉSUMÉ EXÉCUTIF
+
+**SANKOFA** est une marketplace en ligne dédiée à la vente d’œuvres d’art originales par des artistes africains émergents, avec un focus initial sur le Cameroun et une expansion rapide vers la Côte d’Ivoire, le Sénégal et le Nigeria. La plateforme résout trois problèmes majeurs : **l’absence de visibilité et de canaux de vente pour les artistes**, **le manque de confiance des acheteurs** (authenticité, paiement sécurisé, livraison) et **la faible valorisation de l’art africain sur son propre continent**.
+
+**Notre solution** combine :
+- Une **interface mobile‑first** (Next.js + PWA) simple d’utilisation.
+- Un **paiement séquestre par Mobile Money** (Orange Money, MTN MoMo) et cartes bancaires.
+- Un **certificat d’authenticité infalsifiable** enregistré sur la blockchain Polygon.
+- Une **logistique adaptée** (hub central, emballage standardisé, assurance transport).
+- Un **accompagnement des artistes** (formation, curation, mise en avant).
+
+**Modèle économique** : commission dégressive (25 % sur la première vente, 15 % sur les suivantes), + services optionnels (mise en avant, NFT, abonnements B2B). Le seuil de rentabilité est atteint à environ **80 commandes par mois** (panier moyen 150 000 FCFA).
+
+**Objectifs** : 100 artistes actifs et 300 commandes/mois à 18 mois ; rentabilité dès la deuxième année ; expansion panafricaine à 3 ans.
+
+**Équipe** : porteur de projet (Styve – artiste plasticien, concepteur de SANKOFA) + conseiller stratégique (Jizi) + développeurs spécialisés. Un lead dev et un community manager sont à recruter.
+
+**Besoin de financement** : 25–30 M FCFA pour le lancement (MVP, marketing, légal, trésorerie). Retour sur investissement attendu à partir de la 24e mois.
+
+---
+
+## 2. NOTE CONCEPTUELLE
+
+### 2.1. Problème et contexte
+
+L’art contemporain africain connaît une reconnaissance internationale croissante (+42,6 % des ventes aux enchères en 2025), mais le marché local et régional reste sous‑développé. **Les artistes peinent à vendre** : absence de galeries accessibles, faible culture d’achat d’art en ligne, méfiance des acheteurs (contrefaçon, livraison, paiement). **Les plateformes existantes** sont soit élitistes (curation stricte, prix élevés), soit trop génériques (concurrence internationale) ou ignorent les spécificités locales (Mobile Money, logistique, douanes). **Aucune solution ne propose à la fois** : paiement séquestre mobile, certification blockchain et logistique intégrée à des prix accessibles.
+
+### 2.2. Solution : SANKOFA
+
+**Une marketplace conçue pour l’Afrique, par des acteurs du continent.**
+
+#### Fonctionnalités clés
+- **Pour les artistes** : inscription gratuite, dépôt d’œuvres (photos, description, prix), tableau de bord (statistiques, commandes), virement automatique sur Mobile Money après vente.
+- **Pour les acheteurs** : navigation intuitive, filtres (style, prix, pays), paiement sécurisé par Mobile Money ou carte, suivi de livraison, avis vérifiés.
+- **Certificat d’authenticité** : généré automatiquement après chaque vente, avec QR code et empreinte blockchain (Polygon). Page de vérification publique.
+- **Logistique** : hub central à Douala, emballage normalisé, assurance incluse, partenaires transporteurs (Creseada, DHL). Expansion progressive vers d’autres hubs régionaux.
+- **Formation** : Académie SANKOFA (modules obligatoires : photographie, emballage, description) pour professionnaliser les artistes.
+- **Curation** : des curateurs partenaires créent des expositions virtuelles et perçoivent 5 % de commission sur les ventes générées.
+
+#### Innovation et différenciation
+- **Paiement séquestre Mobile Money** : les fonds sont bloqués jusqu’à validation par l’acheteur, une première dans le secteur artistique africain.
+- **Blockchain à faible coût** : Polygon permet des certificats à moins de 20 FCFA par transaction.
+- **Approche décoloniale** : comités éditoriaux locaux, respect des langues et cultures, pas de filtrage occidental.
+- **Logistique adaptée** : solution clé‑en‑main pour des œuvres fragiles, avec assurance intégrée.
+
+### 2.3. Marché cible
+
+- **Artistes** : plasticiens émergents et confirmés d’Afrique francophone et anglophone, en priorité Cameroun, Côte d’Ivoire, Sénégal, Nigeria. Estimation : plusieurs milliers d’artistes potentiels.
+- **Acheteurs** : particuliers (classe moyenne supérieure, diaspora africaine), entreprises (décoration de bureaux, cadeaux d’affaires), collectionneurs locaux et internationaux.
+- **Taille de marché** : le marché de l’art africain contemporain était estimé à 62,8 M USD en 2025 (ventes aux enchères). La vente en ligne ne représente qu’une fraction, avec un fort potentiel de croissance (e‑commerce africain +25 % par an).
+
+### 2.4. Modèle économique détaillé
+
+| Source de revenus | Tarification | Marge |
+|------------------|--------------|-------|
+| Commission sur vente | 25 % (1re vente) / 15 % (suivantes) | ~100 % |
+| Mise en avant artiste | 20 000 FCFA/mois | 100 % |
+| Certificat NFT (premium) | 50 000 FCFA/œuvre | 90 % |
+| Abonnement galerie virtuelle (B2B) | 100 000 FCFA/mois | 100 % |
+| Frais de livraison (marge) | +10 % sur coût réel | 10 % |
+| Assurance premium (acheteur) | 2 % du prix (max 10 000 FCFA) | 80 % |
+| Rapports de marché (anonymisés) | 500 000 FCFA/rapport | 100 % |
+
+**Seuil de rentabilité** : ~80 commandes/mois (panier moyen 150 000 FCFA).  
+**Projection** : Résultat net > 0 dès l’année 2, > 79 M FCFA en année 3.
+
+### 2.5. Stratégie de lancement et croissance
+
+- **Phase 0 (1 mois)** : préparation juridique, recrutement, maquettes, recrutement de 10 artistes ambassadeurs.
+- **Phase 1 (2 mois)** : développement MVP (Next.js, Supabase, Paynote, Polygon).
+- **Phase 2 (1 mois)** : tests utilisateurs, corrections.
+- **Phase 3 (lancement)** : événement virtuel, campagnes ads, activation des ambassadeurs.
+- **Phase 4 (3-6 mois)** : extension à la Côte d’Ivoire, mise en place du hub logistique.
+- **Phase 5 (année 2)** : Sénégal, Nigeria, application mobile native.
+
+**Acquisition** : ambassadeurs artistes, partenariats écoles d’art, influenceurs, Google/Instagram Ads, WhatsApp marketing.
+
+### 2.6. Équipe et compétences
+
+| Rôle | Profil | Statut |
+|------|--------|--------|
+| Porteur / vision | Styve, artiste plasticien, créateur du concept SANKOFA | Fondateur |
+| Conseiller stratégique | Jizi (expert en développement de plateformes) | Consultant |
+| Lead développeur | À recruter (Next.js, Supabase, paiements) | CDI / freelance |
+| Développeur front‑end | À recruter (React, Tailwind, PWA) | Freelance |
+| Community manager / Support | À recruter (WhatsApp, réseaux sociaux) | CDI |
+| UI/UX designer | Prestataire externe | Temps partiel |
+| Juriste / fiscaliste | Cabinet externe | Ponctuel |
+
+### 2.7. Impacts attendus
+
+- **Économique** : création d’un marché structuré pour l’art africain en ligne, génération de revenus pour les artistes (commission plus faible que les galeries traditionnelles).
+- **Social** : professionnalisation des artistes via la formation, accès à un marché international, mise en valeur des cultures africaines.
+- **Technologique** : démonstration de l’utilisation de la blockchain et du Mobile Money pour des biens de valeur en Afrique.
+- **Culturel** : lutte contre l’expropriation culturelle (certificat d’authenticité), promotion de la diversité des expressions artistiques.
+
+### 2.8. Risques et atténuation
+
+| Risque | Atténuation |
+|--------|-------------|
+| Faible adoption | Programme ambassadeurs, commission réduite, campagnes ciblées |
+| Panne paiement | Agrégateur secondaire (Stripe), fonds de secours |
+| Litiges | Médiateur, fonds de garantie, assurance transport |
+| Complexité douanière | Partenariat avec courtier, fiches pays, livraison nationale en phase 1 |
+| Concurrence | Différenciation par la blockchain et la logistique, ancrage local fort |
+
+### 2.9. Besoin de financement et utilisation
+
+| Poste | Montant (M FCFA) |
+|-------|------------------|
+| Développement (MVP) | 12 |
+| Marketing et acquisition (6 mois) | 5 |
+| Frais juridiques et conformité | 2 |
+| Hub logistique (équipement initial) | 3 |
+| Fonds de roulement (trésorerie) | 5 |
+| Imprévus (10 %) | 3 |
+| **Total** | **30** |
+
+**Source de financement** : autofinancement (5 M) + investisseurs (20 M) + subventions (5 M).
+
+**Retour sur investissement** : rentabilité atteinte à partir de 24 mois ; valeur de sortie possible via rachat ou introduction en bourse à 5 ans.
+
+### 2.10. Conclusion
+
+SANKOFA est une initiative innovante, culturellement ancrée et technologiquement robuste, qui répond à un besoin réel non satisfait. Elle a le potentiel de devenir la référence panafricaine de l’achat‑vente d’art en ligne, tout en créant de la valeur pour les artistes, les acheteurs et l’ensemble de l’écosystème créatif africain. Un financement initial de 30 M FCFA permettra de lancer le MVP et d’atteindre la rentabilité dans les 24 mois.
+
+---
+
+*Document établi le 15 juin 2026 – Version 1.0*  
+*Contacts : projet@SANKOFA.com (à créer)*

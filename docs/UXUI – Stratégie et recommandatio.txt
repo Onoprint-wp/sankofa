@@ -1,0 +1,145 @@
+# UX/UI – Stratégie et recommandations pour SANKOFA
+
+Le design system définit les briques visuelles et techniques. L’UX/UI, quant à elle, organise l’expérience utilisateur de bout en bout – pour les artistes comme pour les acheteurs – et s’assure que chaque interaction est fluide, rassurante et efficace.
+
+---
+
+## 1. Principes UX fondamentaux (adaptés au public cible)
+
+- **Confiance d’abord** : l’utilisateur doit savoir à tout moment où en est son argent, son œuvre ou sa livraison. Le séquestre, le délai de rétractation et la certification blockchain doivent être expliqués simplement.
+- **Clarté avant minimalisme** : pas de termes techniques ou de jargon. Utiliser des libellés concrets (« Payer par Orange Money », « Suivre ma commande »).
+- **Réduction des frictions** : limiter le nombre d’écrans et de champs. L’inscription acheteur se fait en deux clics (email/telephone + OTP).
+- **Guidage progressif** : pour les artistes, un onboarding pas à pas avec les modules obligatoires de l’Académie.
+- **Accessibilité dès le départ** : textes contrastés, cibles tactiles larges, support des lecteurs d’écran (WCAG AA).
+
+---
+
+## 2. Parcours utilisateurs clés (user flows)
+
+### 2.1. Parcours acheteur – achat simple
+
+1. **Arrivée sur la homepage** → catalogue avec filtres.
+2. **Filtrage** par style, prix, pays, disponibilité (location/achat).
+3. **Clic sur une œuvre** → fiche détaillée (photos, vidéo, description, prix, options).
+4. **Ajout au panier** → récapitulatif.
+5. **Paiement** → choix Mobile Money (Orange/MTN) ou carte → saisie numéro → confirmation séquestre.
+6. **Suivi** → page de suivi avec timeline (payé → expédié → livré).
+7. **Réception** → bouton « Réception conforme » (ou signalement) → déblocage fonds → certificat PDF.
+8. **Avis** → notation de l’artiste.
+
+### 2.2. Parcours acheteur – location avec option d’achat (V2)
+
+1. **Fiche œuvre** → onglet « Louer ».
+2. **Choix durée** (1, 3, 6 mois) → affichage loyer mensuel et total.
+3. **Explication** : « Les loyers versés seront déduits du prix d’achat si vous décidez d’acquérir l’œuvre. »
+4. **Paiement premier loyer** (séquestre) → expédition.
+5. **Pendant la location** : rappel mensuel, option « Acheter maintenant ».
+6. **Fin de location** : retour de l’œuvre (si non achetée) ou levée d’option.
+
+### 2.3. Parcours artiste – mise en vente
+
+1. **Inscription** → email/tel, OTP, upload CNI + selfie.
+2. **Validation d’identité** (admin) – notification.
+3. **Académie** : suivre 3 modules obligatoires (photographie, emballage, description).
+4. **Dépôt d’œuvre** : formulaire (titre, description, dimensions, matériaux, prix, photos).
+5. **Soumission** → curation admin.
+6. **Publication** → notification.
+7. **Vente** → notification, préparation expédition, génération étiquette, confirmation envoi.
+8. **Paiement** → après validation acheteur, virement sur Mobile Money.
+
+---
+
+## 3. Wireframes et maquettes (priorité)
+
+Nous avons déjà des références Dribbble. Voici les écrans à maquetter en priorité (ordre de développement) :
+
+| Écran | Priorité | Objectif UX |
+|-------|----------|-------------|
+| Catalogue (grille, filtres) | P0 | Permettre une découverte rapide. Les filtres doivent être persistants. |
+| Fiche produit | P0 | Clarifier le prix, les options (location), le certificat. Rassurer sur le séquestre. |
+| Panier & paiement | P0 | Montrer le total, les frais de livraison, l’assurance. Étapes claires. |
+| Tableau de bord artiste | P0 | Visualiser les ventes, les gains, les œuvres en ligne. Action principale : « Déposer ». |
+| Espace acheteur (commandes) | P0 | Suivi de livraison, historique, avis. |
+| Back-office admin | P1 | Validation des artistes/œuvres, gestion des litiges. |
+| Location (V2) | P1 | Choix durée, contrat, suivi. |
+
+---
+
+## 4. Tests utilisateurs – plan concret
+
+Avant le lancement, organiser deux sessions de tests :
+
+- **Session 1 (prototype cliquable – Stitch ou Figma)** : avec 5 artistes et 5 acheteurs. Mesurer : temps pour déposer une œuvre, temps pour acheter, compréhension du séquestre.
+- **Session 2 (environnement staging)** : avec les mêmes utilisateurs, sur la vraie plateforme (sandbox). Vérifier le parcours complet avec un paiement test.
+
+**Indicateurs de succès UX** :
+- Taux de complétion du parcours d’achat > 70 %.
+- Taux de complétion du dépôt d’œuvre > 80 %.
+- Score SUS (System Usability Scale) > 70.
+
+---
+
+## 5. Micro‑interactions et feedback
+
+- **Au clic sur « Ajouter au panier »** : animation de l’icône panier + toast « Œuvre ajoutée ».
+- **Pendant le paiement** : spinner + message « Vérification en cours… ».
+- **Après le paiement** : transition vers la page de confirmation avec récapitulatif et lien de suivi.
+- **Erreur de saisie** (ex: numéro Mobile Money invalide) : message rouge sous le champ, champ bordé en rouge, conservation des données déjà saisies.
+- **Expédition confirmée par l’artiste** : notification push (si PWA) + email à l’acheteur.
+
+---
+
+## 6. Gestion des états vides, chargement, erreurs
+
+- **Liste d’œuvres vide** (aucun résultat) : message « Aucune œuvre ne correspond à vos critères. Essayez d’autres filtres. » + bouton « Réinitialiser les filtres ».
+- **Chargement** (catalogue, commandes) : skeleton screens (blocs gris animés) pour éviter les sauts de contenu.
+- **Erreur technique** (ex: panne API) : bandeau en haut de page « Service momentanément indisponible, réessayez plus tard. » avec bouton « Réessayer ».
+
+---
+
+## 7. Stratégie de contenu UX (libellés, micro‑copy)
+
+- **Bouton d’achat** : « Acheter – [prix] » au lieu de simplement « Acheter ».
+- **Séquestre** : « Vos fonds sont bloqués en toute sécurité. Ils ne seront débloqués qu’après votre validation. »
+- **Location** : « Louer pour [x] mois. Si vous achetez plus tard, les loyers versés seront déduits. »
+- **Certificat** : « Certificat d’authenticité infalsifiable enregistré sur blockchain. »
+- **Appels à l’action secondaires** : « En savoir plus sur le séquestre » (lien vers FAQ).
+
+---
+
+## 8. Accessibilité (UX pour tous)
+
+- **Navigation au clavier** : tous les éléments interactifs (liens, boutons, champs) doivent être accessibles par la touche Tab et activables par Entrée/Espace.
+- **Lecteurs d’écran** : ajouter `aria-label` sur les icônes (ex: « Ajouter aux favoris »). Les champs de formulaire doivent avoir des `<label>` explicites.
+- **Contraste** : vérifié automatiquement dans la CI (ex: `axe-core`).
+- **Taille de police** : ne jamais utiliser de `px` fixes pour le texte ; utiliser `rem`. L’utilisateur doit pouvoir zoomer jusqu’à 200% sans perte de fonctionnalité.
+
+---
+
+## 9. Outils pour le design UX/UI
+
+| Phase | Outil | Usage |
+|-------|-------|-------|
+| Idéation, maquettes rapides | Google Stitch | Générer des interfaces en code à partir de prompts. |
+| Prototypage interactif | Figma (avec liens cliquables) | Tester les parcours avant développement. |
+| Design system & composants | Storybook | Documentation vivante des composants React. |
+| Tests utilisateurs | Maze, Lookback | Enregistrement des sessions, heatmaps. |
+| Accessibilité | axe DevTools, WAVE | Audits automatiques et manuels. |
+
+---
+
+## 10. Plan d’action UX/UI pour les 30 prochains jours
+
+| Jour | Activité | Responsable |
+|------|----------|-------------|
+| 1‑3 | Rédaction des user stories UX complètes (détaillées) | Designer / PO |
+| 4‑7 | Production des maquettes (Figma) pour les 5 écrans P0 | Designer |
+| 8‑12 | Création du prototype cliquable (Figma) | Designer |
+| 13‑15 | Recrutement de 5 artistes et 5 acheteurs pour test | Community manager |
+| 16‑20 | Tests utilisateurs (session 1) – modéré à distance | Designer + PO |
+| 21‑25 | Analyse des retours, itération des maquettes | Designer |
+| 26‑30 | Finalisation des spécifications UI pour développement | Designer + lead dev |
+
+---
+
+Ce plan UX/UI garantit que le produit final sera non seulement fonctionnel et beau, mais aussi réellement adopté par ses utilisateurs camerounais et ouest‑africains. La clé est de tester tôt et souvent, et d’intégrer les retours locaux (langue, habitudes de paiement, confiance).

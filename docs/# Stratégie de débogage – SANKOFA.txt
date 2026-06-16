@@ -1,0 +1,160 @@
+# Stratégie de débogage – SANKOFA
+
+Le débogage (debugging) est une activité continue tout au long du cycle de vie. Une approche systématique permet de réduire les régressions, d’identifier rapidement les anomalies et de garantir une expérience fiable.
+
+---
+
+## 1. Principes généraux
+
+- **Traçabilité** : chaque bug doit être documenté (ticket) avec les étapes de reproduction, environnement, logs, capture d’écran.
+- **Hiérarchisation** : sévérité (bloquant, majeur, mineur, cosmétique) et priorité (immédiate, haute, normale, basse).
+- **Automatisation** : les tests unitaires et d’intégration capturent une partie des bugs avant même qu’ils n’atteignent la production.
+- **Observabilité** : logs centralisés, monitoring des performances, alertes en cas d’anomalie.
+
+---
+
+## 2. Outils de débogage
+
+| Phase | Outil | Usage |
+|-------|-------|-------|
+| **Développement local** | VS Code + extension Chrome DevTools | Points d’arrêt, console, réseau, React DevTools. |
+| **Tests** | Jest (unitaires), Supertest (API), Cypress (E2E) | Identifier les régressions à chaque commit. |
+| **Logs** | Logtail (ou Better Stack) + console Supabase | Centraliser les logs des API routes, Edge Functions, et du frontend. |
+| **Monitoring** | Sentry (erreurs) | Capturer les exceptions non gérées, remonter l’état de l’application. |
+| **Performance** | Lighthouse, Vercel Analytics | Détecter les lenteurs, les goulots d’étranglement. |
+| **Base de données** | Supabase Query Inspector | Voir les requêtes lentes, les verrous. |
+| **Paiement** | Paynote sandbox, Stripe test mode | Simuler les transactions, inspecter les webhooks. |
+| **Blockchain** | Polygon testnet (Mumbai) | Vérifier les transactions sans frais réels. |
+
+---
+
+## 3. Processus de débogage (de la découverte à la correction)
+
+### 3.1. Signalement d’un bug
+
+- **Par un utilisateur** : via le bouton « Signaler un problème » dans l’application (capture d’écran automatique) ou via le support (WhatsApp/email).
+- **Par l’équipe** : lors des tests, via un ticket GitHub issue avec le label `bug`.
+
+**Template d’issue** :
+```markdown
+**Titre** : [court descriptif]
+**Sévérité** : (bloquant / majeur / mineur / cosmétique)
+**Environnement** : (production / staging / local)
+**Étapes de reproduction** :
+1. Aller sur ...
+2. Cliquer sur ...
+3. ...
+**Comportement attendu** : ...
+**Comportement observé** : ...
+**Captures / logs** : ...
+```
+
+### 3.2. Triage
+
+- **Quotidien** (pendant les phases actives) : le lead dev ou le PO examine les nouveaux bugs, les valide, les assigne et définit une priorité.
+- **Priorités** :
+  - **P0** : bloquant (paiement impossible, site inaccessible) → correction immédiate (hotfix).
+  - **P1** : majeur (fonctionnalité clé cassée, mais contournement possible) → correction dans les 48h.
+  - **P2** : mineur (défaut d’affichage, libellé erroné) → correction dans le sprint suivant.
+  - **P3** : cosmétique (espacement, typo) → backlog, correction quand disponible.
+
+### 3.3. Investigation
+
+1. **Reproduire** localement en utilisant les mêmes données (si possible) ou en staging.
+2. **Consulter les logs** (Logtail) et les erreurs Sentry pour avoir le stack trace.
+3. **Isoler** la cause : commenter des parties de code, ajouter des `console.log` temporaires, inspecter les requêtes réseau.
+4. **Corriger** : écrire un test qui reproduit le bug, puis le code correctif.
+5. **Valider** : lancer les tests automatisés, tester manuellement sur staging.
+6. **Déployer** : hotfix (si P0) ou intégration dans le prochain sprint.
+
+### 3.4. Post‑mortem (pour les bugs critiques)
+
+- Documenter la cause racine, l’impact, la solution, et les mesures préventives (amélioration des tests, ajout de monitoring).
+- Partager avec l’équipe lors de la rétrospective.
+
+---
+
+## 4. Tests automatisés pour prévenir les bugs
+
+| Type | Outil | Couverture cible |
+|------|-------|------------------|
+| Tests unitaires | Jest | Logique métier (calcul commission, validation formulaire, séquestre). ≥ 80 % |
+| Tests d’intégration | Supertest | API routes (création commande, webhooks paiement). |
+| Tests end‑to‑end | Cypress | Parcours clés (achat complet, dépôt œuvre, litige). 10 scénarios critiques. |
+| Tests de régression visuelle | Percy (optionnel) | Composants UI (Storybook) – à ajouter en V2. |
+
+**Exécution** : à chaque pull request, GitHub Actions lance les tests unitaires et d’intégration. Les tests E2E sont lancés quotidiennement sur staging.
+
+---
+
+## 5. Monitoring et alertes
+
+- **Sentry** : capte toute exception non gérée dans le frontend (Next.js) et dans les API routes. Envoie une alerte sur Slack pour les erreurs nouvelles ou à forte fréquence.
+- **Logtail** : indexe tous les logs (info, warn, error). Requêtable pour rechercher des erreurs spécifiques.
+- **Vercel Analytics** : détecte les pages lentes, les erreurs 5xx.
+- **Supabase Health** : surveillance des temps de réponse, des erreurs de base de données.
+
+**Alertes critiques** :
+- Plus de 5 erreurs 5xx en 5 minutes.
+- Temps de réponse API > 3 secondes.
+- Webhook de paiement en échec (Paynote retourne une erreur).
+
+---
+
+## 6. Environnements de test pour le débogage
+
+| Environnement | URL | Utilisation |
+|---------------|-----|--------------|
+| **Local** | `http://localhost:3000` | Développement, reproduction rapide des bugs. |
+| **Staging** | `https://staging.SANKOFA.com` | Tests d’intégration, recette, validation des correctifs. |
+| **Production** | `https://SANKOFA.com` | Monitoring, débogage à distance (via Sentry et logs). |
+
+**Données** : staging utilise une copie anonymisée de la base de production (sauf données sensibles). Les paiements y sont en mode sandbox.
+
+---
+
+## 7. Procédure pour les bugs de production (hotfix)
+
+1. **Détection** (alerte Sentry ou remontée utilisateur).
+2. **Création d’une branche** `hotfix/description` depuis `main`.
+3. **Correction** + ajout d’un test pour éviter la régression.
+4. **Déploiement sur staging** pour validation rapide (max 30 min).
+5. **Déploiement sur production** après validation.
+6. **Notification** à l’équipe et aux utilisateurs impactés (si nécessaire).
+7. **Post‑mortem** dans les 48h.
+
+---
+
+## 8. Conseils pratiques pour l’équipe
+
+- **Logs structurés** : utiliser des niveaux (`info`, `warn`, `error`). Inclure un `correlationId` pour suivre une requête utilisateur de bout en bout.
+- **Ne pas laisser de `console.log` en production** : les supprimer ou les remplacer par des logs conditionnels (ex: `if (process.env.NODE_ENV === 'development')`).
+- **Tester les cas extrêmes** : réseau lent, déconnexion, double soumission de formulaire, caractères spéciaux dans les champs.
+- **Documenter les erreurs connues** dans la base de connaissances (Notion) pour que le support puisse répondre rapidement.
+
+---
+
+## 9. Rôles et responsabilités
+
+| Rôle | Responsabilité en débogage |
+|------|----------------------------|
+| **Lead développeur** | Triage des bugs techniques, correction des bugs P0/P1, amélioration des tests. |
+| **Développeur front-end** | Correction des bugs d’interface, régression visuelle. |
+| **Community manager / Support** | Premier filtre, reproduction, signalement des bugs utilisateurs. |
+| **Product Owner** | Priorisation des bugs dans le backlog. |
+
+---
+
+## 10. Métriques de débogage (KPIs)
+
+| Indicateur | Cible | Suivi |
+|------------|-------|-------|
+| Temps moyen de résolution d’un bug P0 | < 4 h | Mensuel |
+| Temps moyen de résolution d’un bug P1 | < 48 h | Mensuel |
+| Taux de bugs récurrents (régressions) | < 5 % | Trimestriel |
+| Couverture de tests | > 80 % | Mensuel |
+| Nombre de bugs signalés par les utilisateurs | < 10 / mois | Mensuel |
+
+---
+
+Cette stratégie de débogage, couplée aux tests automatisés et au monitoring, permettra à SANKOFA de maintenir une qualité de service élevée et de rassurer artistes et acheteurs sur la fiabilité de la plateforme.

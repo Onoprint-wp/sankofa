@@ -1,0 +1,1726 @@
+LIVRABLES DU PROJET SANKOFA  
+*Marketplace d’art africain avec paiements sécurisés, logistique et certification blockchain*
+
+---
+
+## 1. PRD.md – Product Requirements Document
+
+```markdown
+# PRD – SANKOFA
+
+## 1. Vision
+Créer la première marketplace panafricaine dédiée aux artistes émergents, permettant d’acheter et de vendre des œuvres d’art originales en ligne avec séquestre des fonds, livraison sécurisée, et certificat d’authenticité blockchain.
+
+## 2. Objectifs (SMART)
+- **Artistes** : 100 artistes actifs au Cameroun dans les 6 mois post‑MVP.
+- **Ventes** : 100 transactions par mois à 6 mois.
+- **Délai de livraison** : < 5 jours ouvrés pour les livraisons nationales.
+- **Litiges** : Taux < 5% des transactions.
+
+## 3. Périmètre fonctionnel (MVP)
+
+### 3.1. Artistes
+- Inscription avec vérification d’identité (CNI + selfie avec œuvre)
+- Dépôt d’œuvre (titre, description, dimensions, matériaux, prix, 3‑5 photos HD)
+- Tableau de bord (statistiques de vues, commandes, gains)
+- Préparation d’expédition (génération d’étiquette, confirmation d’envoi)
+- Réception des fonds sur Mobile Money (Orange Money, MTN MoMo)
+
+### 3.2. Acheteurs
+- Inscription par email/téléphone
+- Navigation, filtres (prix, pays, style, matériaux)
+- Paiement sécurisé par Mobile Money ou carte bancaire (Stripe)
+- Suivi de livraison en temps réel
+- Délai de rétractation / inspection : 48h après réception
+- Avis et notation des artistes
+
+### 3.3. Modérateurs / Admins
+- Validation des artistes (documents d’identité)
+- Validation des œuvres (qualité photos, conformité éditoriale)
+- Gestion des litiges (médiation, remboursement partiel/total)
+- Tableau de bord KPIs (ventes, nombre d’utilisateurs, litiges)
+
+### 3.4. Certificat d’authenticité
+- Généré automatiquement après validation acheteur (PDF + QR code)
+- Enregistrement sur Polygon (hash de l’œuvre + métadonnées)
+- Page de vérification publique accessible par QR code
+
+### 3.5. Logistique
+- Hub central à Douala (optionnel en phase 1 : expédition directe artiste → acheteur)
+- Tracking API via partenaire transporteur (ex: Creseada, DHL)
+- Assurance transport incluse dans les frais de livraison
+
+## 4. Contraintes critiques
+- **Paiement séquestre** : les fonds sont bloqués jusqu’à validation de l’acheteur ou expiration du délai de 48h.
+- **Conformité douanière** : pour les expéditions internationales, intégration des procédures NCMM (Nigeria) et autorisations ivoiriennes.
+- **Protection des données** : conformité RGPD et loi camerounaise n°2010/012.
+- **Droit d’auteur** : l’artiste conserve tous ses droits. Plagiat interdit.
+
+## 5. Métriques de succès (KPIs)
+- Taux de conversion (visite → achat) : > 3%
+- Panier moyen : > 100 000 FCFA
+- Délai médian de livraison : < 7 jours
+- NPS (satisfaction acheteur) : > 40
+- Taux de litiges : < 5%
+```
+
+---
+
+## 2. architecture.md – Technical Architecture
+
+```markdown
+# Architecture technique – SANKOFA
+
+## 1. Vue d’ensemble
+
+```
+[Client Web (Next.js)] 
+      │
+      ▼
+[Vercel (frontend + API routes)]
+      │
+      ├──► [Supabase (auth, DB, storage, realtime)]
+      ├──► [Paynote API (Mobile Money)]
+      ├──► [Stripe API (cards)]
+      ├──► [Transporteur API (tracking)]
+      ├──► [Deepseek API (assistant IA)]
+      └──► [Polygon blockchain (certificats)]
+```
+
+## 2. Stack détaillée
+
+| Couche | Technologie | Rôle |
+|--------|-------------|------|
+| Frontend | Next.js 14 (App Router) + TypeScript + Tailwind CSS | UI responsive, PWA |
+| Prototypage UI | Google Stitch (MCP) | Génération rapide de composants |
+| Backend / API | Next.js API routes (serverless) | Logique métier, webhooks |
+| Base de données | Supabase (PostgreSQL) | Utilisateurs, œuvres, commandes, escrow |
+| Authentification | Supabase Auth (magic link / OTP) | Connexion par email/téléphone |
+| Stockage fichiers | Supabase Storage | Photos des œuvres, PDF certificats |
+| Realtime | Supabase Realtime | Notifications (vente, livraison) |
+| Paiement Mobile Money | Paynote (agrégateur) | Intégration Orange Money, MTN MoMo |
+| Paiement carte | Stripe | Acheteurs internationaux |
+| Blockchain | Polygon (via Thirdweb) | Enregistrement hash certificats |
+| Assistant IA | Deepseek API | Chatbot, génération descriptions, modération |
+| Logistique | API partenaire (Creseada, etc.) | Suivi colis, étiquettes |
+| Hébergement | Vercel (Pro plan) | Frontend + serverless functions |
+| CI/CD | GitHub Actions | Tests, déploiement automatique |
+
+## 3. Modèle de données clés (PostgreSQL)
+
+```sql
+-- Extraits
+users (id, email, phone, role, verified_at, kyc_docs)
+artworks (id, artist_id, title, description, price, dimensions, materials, status, photos[])
+orders (id, buyer_id, artwork_id, amount, escrow_status, delivery_status, created_at)
+escrow_transactions (id, order_id, amount, status, released_at, dispute_reason)
+certificates (id, artwork_id, blockchain_tx_hash, qr_code_url)
+litigations (id, order_id, requester, reason, resolution, resolved_at)
+```
+
+## 4. Flux de séquestre (escrow)
+
+1. Acheteur initie paiement → Paynote capture les fonds vers un compte séquestre technique.
+2. Webhook Paynote met à jour `orders.escrow_status = 'pending'`.
+3. Artiste confirme expédition → status = 'shipped'.
+4. Acheteur valide réception (ou silence 48h) → status = 'released'.
+5. Déclenchement virement vers Mobile Money de l’artiste via Paynote Payout.
+
+## 5. Sécurité et conformité
+- Chiffrement TLS 1.3.
+- Variables d’environnement sur Vercel (clés API, secrets).
+- Row Level Security (RLS) sur Supabase.
+- Logs d’audit pour actions admin (modifications, remboursements).
+- Respect des lois douanières via module séparé (fiche pays).
+
+## 6. Déploiement (GitHub Actions + Vercel)
+- Branch `main` → déploiement automatique en production.
+- Pull requests → preview Vercel + tests automatisés.
+- Migrations Supabase exécutées manuellement (ou via script CI).
+```
+
+---
+
+## 3. User stories et user journeys (extrait)
+
+### User stories (formule « En tant que… je veux… afin de… »)
+
+| ID | Rôle | Story | Priorité |
+|----|------|-------|----------|
+| US‑01 | Artiste | Je veux m’inscrire avec mon téléphone et uploader une pièce d’identité pour pouvoir vendre mes œuvres. | P0 |
+| US‑02 | Artiste | Je veux déposer une œuvre (photos, description, prix) et qu’elle soit validée par un modérateur. | P0 |
+| US‑03 | Acheteur | Je veux payer par Mobile Money (Orange/MTN) et que mes fonds soient bloqués jusqu’à réception conforme. | P0 |
+| US‑04 | Acheteur | Je dispose de 48h après réception pour inspecter l’œuvre et demander un remboursement si non conforme. | P0 |
+| US‑05 | Admin | Je veux consulter la file d’attente des litiges, voir les preuves et statuer (remboursement ou déblocage). | P0 |
+| US‑06 | Artiste | Après validation par l’acheteur, je reçois automatiquement le paiement sur mon compte Mobile Money. | P0 |
+
+### User journey – Acheteur
+
+1. Découvre l’œuvre sur Instagram / recherche Google → clique sur lien SANKOFA.
+2. Navigue, filtre par style « abstrait » et prix < 200 000 FCFA.
+3. Consulte la fiche, zoom sur les photos, lit la description générée par Deepseek.
+4. Clique « Acheter » → panier → choisit Mobile Money (Orange Money).
+5. Saisit son numéro → autorise le paiement sur son téléphone.
+6. Reçoit un SMS : « Paiement accepté, fonds séquestrés. L’artiste va expédier. »
+7. Suit la livraison via le lien de tracking.
+8. Reçoit l’œuvre, l’inspecte, valide dans son espace client (ou ne fait rien, déblocage auto après 48h).
+9. Reçoit par email le certificat d’authenticité PDF avec QR code.
+10. Laisse un avis étoilé sur l’artiste.
+
+---
+
+## 4. Contraintes techniques supplémentaires
+
+| Domaine | Contrainte |
+|---------|-------------|
+| **Paiement** | Le séquestre doit être revu manuellement avant mise en production (risque de perte de fonds). |
+| **Blockchain** | Les frais de gaz Polygon sont payés par la plateforme (moins de 0,01 $ par certificat). |
+| **Logistique** | En phase 1 (Cameroun), la livraison se fait sans hub central : l’artiste expédie directement. Hub optionnel pour l’expansion. |
+| **Performance** | Temps de chargement des fiches œuvres < 2s (optimisation images via Next.js Image, CDN). |
+| **Tests** | Obligation de tests unitaires sur les flux de paiement et de litige (Jest + Supertest). |
+| **Monitoring** | Mise en place de Sentry pour les erreurs frontend et backend. |
+
+---
+
+Ces livrables constituent la phase `/plan` du prompt. Ils sont prêts à être validés avant de passer en `/build`. Voulez-vous que je les transforme en fichiers Markdown téléchargeables ou que je détaille une partie spécifique (ex: la gestion des litiges pas à pas) ?
+
+
+Je choisis de rédiger le **modèle de contrat pour les artistes**, car c’est un livrable juridique essentiel (priorité P0) qui engage la relation entre la plateforme et les créateurs. Voici un document prêt à être adapté et soumis à un avocat local.
+
+---
+
+# CONTRAT D’ADHÉSION – ARTISTE  
+## SANKOFA (plateforme de vente d’art en ligne)
+
+**Entre les soussignés :**
+
+**La plateforme SANKOFA**, société [à compléter : forme juridique, capital, RCCM, siège social], représentée par [nom, prénom, fonction], ci-après dénommée « la Plateforme ».
+
+**Et l’artiste :**
+
+Nom, prénom : ………………………………………….  
+Adresse : ………………………………………….  
+Téléphone : ………………………………………….  
+Email : ………………………………………….  
+Compte Mobile Money (Orange/MTN) : ………………………………………….
+
+Ci-après dénommé « l’Artiste ».
+
+---
+
+## Préambule
+
+La Plateforme exploite une marketplace en ligne destinée à la vente d’œuvres d’art originales par des artistes africains, avec séquestre des fonds, logistique et certification blockchain. L’Artiste souhaite proposer ses œuvres à la vente via la Plateforme.
+
+Les parties conviennent de ce qui suit :
+
+---
+
+## Article 1 – Objet
+
+Le présent contrat a pour objet de définir les conditions d’inscription, de mise en vente, de vente, de livraison et de rémunération des œuvres de l’Artiste sur la Plateforme SANKOFA.
+
+---
+
+## Article 2 – Adhésion et vérification d’identité
+
+2.1. L’Artiste déclare être majeur (18 ans révolus) ou représenté par un parent tuteur.  
+2.2. L’Artiste s’engage à fournir une pièce d’identité valide (CNI, passeport) et un selfie tenant une de ses œuvres. Ces documents sont conservés conformément à la politique de confidentialité.  
+2.3. La Plateforme se réserve le droit de refuser une adhésion sans motif, notamment en cas de suspicion de fraude ou d’antécédent de contrefaçon.
+
+---
+
+## Article 3 – Dépôt et validation des œuvres
+
+3.1. L’Artiste dépose chaque œuvre via son espace personnel en fournissant :  
+- Titre, dimensions, matériaux, année de création, description (histoire, technique, message), prix en FCFA,  
+- 3 à 5 photos haute résolution (≥ 800×600 px), fond neutre,  
+- (optionnel) une courte vidéo de présentation.
+
+3.2. La Plateforme peut refuser la publication d’une œuvre si :
+- les photos sont de qualité insuffisante,
+- l’œuvre est une copie ou contrevient au droit d’auteur,
+- l’œuvre a été générée entièrement par une IA (sauf mention expresse),
+- elle contient des propos ou symboles illégaux ou contraires aux bonnes mœurs.
+
+3.3. L’Artiste certifie être l’auteur original de l’œuvre et en détenir tous les droits patrimoniaux.
+
+---
+
+## Article 4 – Prix, commission et paiement
+
+4.1. **Prix de vente** : fixé librement par l’Artiste en FCFA, hors frais de livraison et hors commission.
+
+4.2. **Commission de la Plateforme** :
+- 25 % du prix de vente pour la **première vente** de l’Artiste,
+- 15 % pour les **ventes suivantes**.
+La commission est prélevée automatiquement avant le reversement à l’Artiste.
+
+4.3. **Séquestre (escrow)** :
+- À l’achat, les fonds sont bloqués sur un compte séquestre technique.
+- Ils sont débloqués automatiquement 48 heures après la réception validée par l’acheteur (ou au terme des 48h sans réclamation).
+- Le délai de rétractation / inspection est de 48h à compter de la livraison.
+
+4.4. **Paiement à l’Artiste** :
+- Le montant net (prix – commission) est viré sur le compte Mobile Money (Orange Money, MTN MoMo) déclaré par l’Artiste, dans les 24h suivant le déblocage.
+- Seuil minimum de virement : 10 000 FCFA.
+
+---
+
+## Article 5 – Obligations de l’Artiste
+
+5.1. **Emballage et expédition** :  
+- L’Artiste s’engage à expédier l’œuvre dans les 3 jours ouvrés suivant la notification de vente.  
+- L’emballage doit être professionnel (caisse rigide, matériaux de protection, pas de ruban adhésif sur l’œuvre).  
+- Un guide d’emballage est fourni par la Plateforme.
+
+5.2. **Assurance** :  
+- La Plateforme souscrit une assurance transport pour chaque envoi. L’Artiste doit déclarer immédiatement tout dommage constaté lors de l’emballage.
+
+5.3. **Droit d’auteur** :  
+- L’Artiste reste titulaire de ses droits. Il autorise la Plateforme à reproduire les images des œuvres pour la promotion sur le site et les réseaux sociaux, sans cession exclusive.
+
+5.4. **Interdictions** :  
+- Il est interdit de vendre des œuvres contrefaisantes, volées, ou issues d’espèces protégées (CITES) sans permis.  
+- L’usage d’IA générative doit être mentionné dans la description.
+
+---
+
+## Article 6 – Certificat d’authenticité
+
+6.1. Pour chaque vente finalisée (après validation acheteur), la Plateforme génère un certificat d’authenticité numérique (PDF) avec un QR code et enregistre une empreinte (hash) sur la blockchain Polygon.
+
+6.2. L’Artiste reconnaît que ce certificat est émis par la Plateforme sur la base des informations qu’il a fournies.
+
+---
+
+## Article 7 – Litiges
+
+7.1. En cas de non-conformité ou de dommage, l’acheteur dispose d’un bouton « Signaler un problème » dans son espace.
+
+7.2. La Plateforme agit en médiateur. Elle peut :
+- demander le retour de l’œuvre aux frais de la Plateforme,
+- proposer un remboursement partiel,
+- débloquer les fonds à l’Artiste si le litige est infondé.
+
+7.3. L’Artiste s’engage à collaborer de bonne foi (fournir des photos, accepter un retour si nécessaire).
+
+---
+
+## Article 8 – Résiliation
+
+8.1. L’Artiste peut résilier son compte à tout moment, sous réserve d’avoir honoré les commandes en cours.
+
+8.2. La Plateforme peut résilier le contrat sans préavis en cas de :
+- fraude, contrefaçon avérée,
+- non-respect des délais d’expédition répété,
+- diffusion de fausses informations.
+
+---
+
+## Article 9 – Responsabilité
+
+9.1. La Plateforme n’est pas responsable des retards de livraison imputables au transporteur, sauf si elle a choisi ce transporteur.
+
+9.2. En cas de perte ou de casse pendant le transport, l’assurance souscrite par la Plateforme indemnise l’Artiste sur la base du prix de vente net (après commission). L’Artiste ne peut réclamer davantage.
+
+9.3. La Plateforme ne garantit pas que chaque œuvre trouvera un acheteur.
+
+---
+
+## Article 10 – Confidentialité et données personnelles
+
+Les données de l’Artiste sont traitées conformément à la politique de confidentialité de la Plateforme. L’Artiste consent à ce que ses informations (nom, ville, biographie) soient visibles publiquement sur son profil.
+
+---
+
+## Article 11 – Droit applicable et juridiction compétente
+
+Le présent contrat est régi par la loi camerounaise. Tout litige relatif à son interprétation ou à son exécution sera soumis au tribunal de première instance de Douala, sauf disposition impérative contraire.
+
+---
+
+**Fait à Douala, le …………………………….**
+
+En deux exemplaires originaux.
+
+**L’Artiste**  
+(Nom, signature précédée de « Lu et approuvé »)
+
+**La Plateforme SANKOFA**  
+(Nom, signature et cachet)
+
+---
+
+Ce document est une base. Je vous recommande de le faire valider par un avocat camerounais spécialisé en droit du numérique et des contrats. Souhaitez-vous que je rédige également la **politique de confidentialité** ou le **plan de test** ?
+
+
+Parfait. Voici l’ensemble des livrables manquants, rédigés de façon opérationnelle et prêts à être adaptés.
+
+---
+
+## 1. Spécifications fonctionnelles détaillées (user stories complètes)
+
+**Fichier :** `user-stories-full.md`
+
+```markdown
+# User stories complètes – SANKOFA
+
+## Légende des rôles
+- **ART** : Artiste
+- **ACH** : Acheteur
+- **ADM** : Administrateur / modérateur
+- **CUR** : Curateur partenaire
+- **TRA** : Transporteur partenaire
+
+---
+
+## Module Inscription & profil
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑A01 | ART | Je veux m’inscrire avec mon email et téléphone, puis vérifier mon identité par CNI + selfie, pour pouvoir vendre. | Réception d’un OTP SMS ; upload des documents ; validation manuelle par admin dans les 48h. | P0 |
+| US‑A02 | ART | Je veux compléter mon profil (bio, photo, réseaux sociaux) pour inspirer confiance aux acheteurs. | Les informations apparaissent sur ma page publique. | P1 |
+| US‑A03 | ACH | Je veux m’inscrire par email ou téléphone, sans vérification lourde, pour acheter rapidement. | OTP SMS ; accès immédiat au catalogue. | P0 |
+| US‑A04 | ADM | Je veux consulter la liste des artistes en attente de vérification et approuver ou rejeter. | Affichage des documents ; champ motif en cas de rejet. | P0 |
+
+## Module Dépôt et gestion des œuvres
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑O01 | ART | Je veux déposer une œuvre (titre, description, dimensions, matériaux, prix, 3‑5 photos). | Les champs obligatoires sont contrôlés ; sauvegarde en brouillon possible. | P0 |
+| US‑O02 | ART | Je veux modifier ou supprimer une œuvre non encore vendue. | L’œuvre disparaît du catalogue ; les acheteurs qui l’avaient dans leur panier sont notifiés. | P1 |
+| US‑O03 | ADM | Je veux valider ou refuser une œuvre déposée, avec un motif en cas de refus. | L’artiste reçoit une notification. En cas de refus, l’œuvre reste en brouillon. | P0 |
+| US‑O04 | ACH | Je veux filtrer les œuvres par prix, pays, style, matériaux, et rechercher par mot‑clé. | Résultats en temps réel ; conservation des filtres pendant la navigation. | P0 |
+| US‑O05 | ACH | Je veux voir une fiche produit avec carrousel photos, vidéo (option), description complète, et bouton d’achat. | Zoom sur les photos ; affichage du prix TTC ; disponibilité de l’œuvre. | P0 |
+
+## Module Panier, paiement et séquestre
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑P01 | ACH | Je veux ajouter une œuvre au panier, modifier la quantité (1 max), et visualiser le total incluant frais de livraison. | Mise à jour dynamique ; bouton « Passer commande ». | P0 |
+| US‑P02 | ACH | Je veux payer par Mobile Money (Orange Money, MTN MoMo) ou carte bancaire, avec séquestre des fonds. | Redirection vers l’opérateur ; confirmation de blocage des fonds ; statut commande mis à jour. | P0 |
+| US‑P03 | ART | Je reçois une notification dès qu’une commande est payée (fonds séquestrés). | Message email et WhatsApp : « Votre œuvre [titre] a été vendue. Préparer l’expédition. » | P0 |
+| US‑P04 | ART | Après expédition validée par l’acheteur (ou silence 48h), je reçois le virement net sur mon Mobile Money. | Délai < 24h après déblocage ; commission déduite visible dans l’historique. | P0 |
+| US‑P05 | ACH | Je dispose d’un délai de 48h après réception pour inspecter l’œuvre et signaler un problème. | Bouton « Réception conforme » ou « Signaler un problème » ; les fonds restent bloqués. | P0 |
+| US‑P06 | ADM | Je veux consulter l’historique des transactions, les fonds en séquestre, et les commissions perçues. | Tableau de bord avec filtres (date, artiste, statut). | P1 |
+
+## Module Logistique et livraison
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑L01 | ART | Je veux générer une étiquette d’expédition avec code de suivi à coller sur le colis. | PDF avec adresse acheteur, adresse de retour, code barre. | P1 |
+| US‑L02 | ART | Je confirme l’expédition en saisissant le numéro de suivi du transporteur. | Le statut de la commande passe à « Expédiée » ; notification à l’acheteur. | P0 |
+| US‑L03 | ACH | Je veux suivre ma commande en temps réel (ramassage, transit, livraison). | Page de suivi avec timeline et position approximative. | P1 |
+| US‑L04 | TRA | En tant que transporteur partenaire, je reçois une notification de collecte et je mets à jour le statut via une API. | Webhook ou interface dédiée ; horodatage des étapes. | P1 |
+
+## Module Certificat d’authenticité (blockchain)
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑C01 | ACH | Après validation de la réception, je reçois un certificat PDF avec QR code prouvant l’authenticité de l’œuvre. | QR code scannable menant à une page de vérification publique. | P0 |
+| US‑C02 | ADM | L’empreinte (hash) de chaque certificat est automatiquement enregistrée sur Polygon. | Transaction blockchain vérifiable via un explorateur. | P1 |
+| US‑C03 | ART | Je peux consulter le certificat de mes œuvres vendues dans mon tableau de bord. | Liens de téléchargement ; QR code réutilisable. | P1 |
+
+## Module Avis et réputation
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑R01 | ACH | Après une transaction validée, je peux noter l’artiste (étoiles 1‑5) et laisser un commentaire. | La note moyenne s’affiche sur le profil artiste ; modération a posteriori des commentaires abusifs. | P0 |
+| US‑R02 | ART | Je peux noter l’acheteur (sérieux, rapidité de validation). | Note interne, non publique, utilisée pour détecter des acheteurs problématiques. | P1 |
+
+## Module Curateurs (expositions virtuelles)
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑CU01 | CUR | Je veux accéder au vivier des œuvres en attente de publication et créer une collection thématique. | Interface de sélection ; génération d’une page d’exposition avec mon nom. | P1 |
+| US‑CU02 | CUR | Je veux suivre les ventes générées par ma collection et percevoir 5% de commission. | Tableau de bord dédié ; virement mensuel. | P1 |
+
+## Module Administration et litiges
+
+| ID | Rôle | User story | Critères d’acceptation | Priorité |
+|----|------|------------|------------------------|----------|
+| US‑AD01 | ADM | Je veux voir la file d’attente des litiges, avec les preuves (photos, messages). | Interface avec chronologie ; boutons « donner raison à l’acheteur », « donner raison à l’artiste », « proposer médiation ». | P0 |
+| US‑AD02 | ADM | Je peux bloquer ou suspendre un utilisateur en cas de fraude, contrefaçon ou abus. | L’utilisateur ne peut plus se connecter ; ses œuvres sont dépubliées. | P0 |
+| US‑AD03 | ADM | Je peux générer des rapports d’activité (ventes par pays, commission perçue, litiges). | Export CSV / Excel ; filtres temporels. | P1 |
+```
+
+---
+
+## 2. Maquettes (wireframes haute fidélité)
+
+**Format :** Liens Google Stitch + captures d’écran à produire.
+
+**Écrans prioritaires à maquetter (ordre suggéré) :**
+
+1. Page d’accueil (catalogue, filtres, œuvres à la une)
+2. Inscription / connexion (acheteur et artiste)
+3. Dépôt d’œuvre (formulaire + upload photos)
+4. Fiche produit détaillée (carrousel, description, acheter)
+5. Panier et tunnel de paiement Mobile Money
+6. Tableau de bord artiste (commandes, gains, statistiques)
+7. Espace acheteur (historique, suivi de livraison, litige)
+8. Back-office admin (validation artiste/œuvre, gestion litiges)
+
+**Méthode :** Utiliser Google Stitch avec des prompts descriptifs. Exemple de prompt pour Stitch :  
+*« Crée une maquette responsive pour une marketplace d’art africain. Page de dépôt d’œuvre : formulaire avec champs titre, description, dimensions, matériaux, prix, upload de 3 à 5 photos. Style moderne, couleurs chaudes (terracotta, beige), typographie lisible. »*
+
+Les fichiers seront stockés dans le dossier `/maquettes` du repository.
+
+---
+
+## 3. Plan de test
+
+**Fichier :** `test-plan.md`
+
+```markdown
+# Plan de test – SANKOFA
+
+## 1. Types de tests
+
+- **Unitaires** : Jest pour les fonctions backend (calcul de commission, validation de formulaire, logique séquestre).
+- **Intégration** : Supertest pour les API routes (paiement, webhooks, création commande).
+- **End‑to‑end** : Cypress / Playwright pour les parcours utilisateurs critiques.
+- **Acceptation utilisateur (UAT)** : Tests manuels avec 5 artistes et 5 acheteurs réels.
+
+## 2. Environnements de test
+
+| Environnement | URL | Utilisation |
+|---------------|-----|-------------|
+| Local | `http://localhost:3000` | Développement, tests unitaires |
+| Staging | `https://staging.SANKOFA.com` | Tests d’intégration, recette interne |
+| Production | `https://SANKOFA.com` | Monitoring post‑lancement |
+
+**Sandbox tiers** : Paynote (mode test), Stripe (mode test), Polygon (testnet Mumbai).
+
+## 3. Cas de test prioritaires (P0)
+
+| ID | Cas de test | Précondition | Étapes | Résultat attendu |
+|----|-------------|--------------|--------|------------------|
+| TC‑01 | Inscription artiste avec CNI | Aucune | Saisir email/tel → OTP → upload CNI et selfie | Compte créé, statut « en attente de vérification » |
+| TC‑02 | Validation artiste par admin | Artiste en attente | Admin clique « Approuver » | Artiste peut maintenant déposer des œuvres |
+| TC‑03 | Dépôt d’œuvre | Artiste validé | Remplir formulaire, upload 3 photos | Œuvre en attente de validation curatoriale |
+| TC‑04 | Achat avec Mobile Money (succès) | Œuvre publiée, acheteur connecté | Ajout panier → paiement Orange Money → validation acheteur après livraison | Fonds débloqués vers artiste, certificat généré |
+| TC‑05 | Litige – œuvre non conforme | Commande livrée | Acheteur signale problème + photos | Litige créé, fonds bloqués, admin peut statuer |
+| TC‑06 | Expiration du délai de rétractation | Commande livrée, acheteur n’agit pas | Attendre 48h | Déblocage automatique des fonds |
+| TC‑07 | Génération certificat blockchain | Vente finalisée | Vérifier sur Polygon testnet | Hash présent, QR code mène à page valide |
+
+## 4. Jeux de données de test
+
+- Artistes fictifs : 3 (Cameroun, Côte d’Ivoire, Sénégal)
+- Œuvres : 10 (différents styles, prix de 50k à 500k FCFA)
+- Acheteurs : 5 (comptes Mobile Money de test fournis par Paynote)
+- Commandes : 15 (mélange de réussite, litige, annulation)
+
+## 5. Critères de sortie (release)
+
+- Tous les cas P0 passent avec succès.
+- Couverture de code > 80 % (backend).
+- Aucun bug bloquant (severity 1) en staging.
+- Revue de sécurité validée (pas de clés exposées, RLS Supabase active).
+```
+
+---
+
+## 4. Guide d’utilisation (artistes et acheteurs)
+
+**Fichier :** `user-guide.md` (extrait pour l’exemple, version complète à mettre en ligne)
+
+```markdown
+# Guide d’utilisation – SANKOFA
+
+## Pour les artistes
+
+### 1. Créer son compte
+- Allez sur `SANKOFA.com/inscription`
+- Choisissez « Je suis artiste »
+- Saisissez votre email et numéro de téléphone
+- Validez le code reçu par SMS
+- Téléchargez une photo de votre pièce d’identité + un selfie tenant une de vos œuvres
+- Attendez la validation (max 48h)
+
+### 2. Déposer une œuvre
+- Connectez-vous → tableau de bord → « Déposer une œuvre »
+- Remplissez : titre, description (histoire, technique), dimensions, matériaux, prix
+- Téléchargez 3 à 5 photos (fond neutre, bonne lumière)
+- Soumettez à validation
+
+### 3. Quand une œuvre est vendue
+- Vous recevez un email et un WhatsApp : « Félicitations, votre œuvre [titre] a été vendue »
+- Préparez l’œuvre : emballage rigide (voir guide emballage)
+- Générez l’étiquette depuis votre tableau de bord
+- Déposez le colis chez le transporteur ou en point relais
+- Saisissez le numéro de suivi
+
+### 4. Recevoir le paiement
+- L’acheteur a 48h après réception pour valider
+- Une fois validé (ou délai passé), les fonds sont virés sur votre Mobile Money sous 24h (commission déduite)
+
+### 5. Certificat d’authenticité
+- Après chaque vente, un certificat PDF est généré et un hash est stocké sur blockchain
+- Vous pouvez le télécharger depuis votre historique
+
+## Pour les acheteurs
+
+### 1. Acheter une œuvre
+- Parcourez le catalogue, utilisez les filtres (prix, pays, style)
+- Cliquez sur une œuvre → « Ajouter au panier »
+- Renseignez votre adresse de livraison
+- Choisissez Mobile Money (Orange ou MTN) ou carte bancaire
+- Validez le paiement : les fonds sont bloqués (séquestre)
+
+### 2. Suivre la livraison
+- Recevez un email avec le lien de suivi
+- Vous pouvez consulter le statut dans votre espace « Mes commandes »
+
+### 3. À la réception
+- Inspectez l’œuvre dans les 48h
+- Si conforme : cliquez « Réception conforme » → l’artiste est payé, vous recevez le certificat
+- Si problème (casse, non-conformité) : cliquez « Signaler un problème » et joignez des photos
+
+### 4. Certificat d’authenticité
+- Téléchargez le PDF depuis l’historique de commande
+- Scannez le QR code pour vérifier l’authenticité en ligne
+
+## En cas de litige
+- Contactez le support via WhatsApp (`+237 XXXX`) ou email `support@SANKOFA.com`
+- Un médiateur examinera votre dossier dans les 72h
+```
+
+---
+
+## 5. Plan de lancement
+
+**Fichier :** `launch-plan.md`
+
+```markdown
+# Plan de lancement – SANKOFA
+
+## Phase 1 : Pré‑lancement (J‑30 à J‑1)
+
+| Activité | Responsable | Date cible |
+|----------|-------------|------------|
+| Recrutement de 10 artistes ambassadeurs (Cameroun) | Community Manager | J‑30 à J‑15 |
+| Création du compte Instagram, Facebook, TikTok | CM | J‑25 |
+| Teasers : vidéo « Qu’est-ce que SANKOFA ? » | CM + designer | J‑20 |
+| Organisation d’un vernissage virtuel (invitation presse, influenceurs) | Chef de projet | J‑10 |
+| Tests utilisateurs (5 artistes + 5 acheteurs) | Équipe produit | J‑7 à J‑2 |
+| Correction des bugs bloquants | Développeurs | J‑7 à J‑1 |
+
+## Phase 2 : Lancement (J0)
+
+| Horaire | Activité |
+|---------|----------|
+| 9h00 | Mise en production de la plateforme |
+| 10h00 | Envoi de l’email de lancement aux 500 inscrits à la newsletter |
+| 11h00 | Publication du post Instagram / Facebook |
+| 14h00 | Webinaire live « Présentation de SANKOFA » (YouTube) |
+| 18h00 | Vernissage virtuel avec 6 artistes exposés, commentaires en direct |
+
+**Indicateurs de succès J0** : 1000 visiteurs uniques, 10 commandes.
+
+## Phase 3 : Post‑lancement (J+1 à J+30)
+
+| Activité | Fréquence |
+|----------|-----------|
+| Analyse quotidienne des KPIs (panier moyen, taux de conversion) | Quotidien |
+| Relance des paniers abandonnés (email + WhatsApp) | Automatisé J+1 |
+| Campagne Google Ads & Instagram Ads ciblant « art africain contemporain » | Continue |
+| Collecte des avis NPS (enquête à J+7 et J+30) | Hebdomadaire |
+| Bilan mensuel et ajustement de la stratégie | J+30 |
+
+## Budget marketing initial (estimatif)
+
+| Poste | Montant (FCFA) |
+|-------|----------------|
+| Campagnes ads (Instagram, Google) | 2 000 000 |
+| Influenceurs (3 micro‑influenceurs art) | 500 000 |
+| Vernissage virtuel (invitations, animation) | 500 000 |
+| Création de contenu (vidéos, visuels) | 300 000 |
+| **Total** | **3 300 000** |
+```
+
+---
+
+## 6. Plan de gestion des risques
+
+**Fichier :** `risk-management-plan.md`
+
+```markdown
+# Plan de gestion des risques – SANKOFA
+
+| ID | Risque | Probabilité (P) | Impact (I) | Score (P×I) | Mesures préventives | Plan de continuité | Responsable |
+|----|--------|----------------|------------|-------------|---------------------|--------------------|-------------|
+| R01 | Panne de l’API de paiement (Paynote) | Moyenne (3) | Élevé (5) | 15 | Utiliser un agrégateur secondaire (ex: Stripe Connect en backup) ; monitorer l’API. | Basculer sur le backup ; informer les utilisateurs par bandeau ; reporter les paiements. | Tech Lead |
+| R02 | Litige non résolu rapidement (délai > 10 jours) | Moyenne (3) | Moyen (4) | 12 | Médiateur dédié ; formation aux cas types. | Escalade vers un expert externe ; dédommagement accéléré via fonds de garantie. | Support manager |
+| R03 | Artiste ne livre pas l’œuvre après paiement | Faible (2) | Élevé (5) | 10 | Séquestre obligatoire ; vérification identité ; retrait d’artiste récidiviste. | Remboursement total à l’acheteur (fonds séquestre) ; puis recours contre l’artiste. | Admins |
+| R04 | Vol ou casse pendant le transport | Moyenne (3) | Élevé (4) | 12 | Assurance transport incluse ; emballage standardisé ; transporteurs agréés. | L’assurance indemnise l’artiste (prix net) et l’acheteur est remboursé. | Logistics manager |
+| R05 | Non‑conformité douanière (Nigeria, etc.) | Élevée (4) | Élevé (5) | 20 | Fiches pays tenues à jour ; partenariat avec courtier en douane. | En cas de saisie, litige géré par l’assurance ; revoir la procédure. | Juriste |
+| R06 | Fuite de données personnelles | Faible (2) | Critique (5) | 10 | Chiffrement, RLS Supabase, audits de sécurité semestriels, conformité RGPD. | Déclaration à la CNIL locale ; notification aux utilisateurs ; rotation des clés. | DPO |
+| R07 | Faible adoption (moins de 20 ventes/mois) | Moyenne (3) | Élevé (5) | 15 | Marketing agressif, programme ambassadeurs, commission réduite pour les premiers artistes. | Pivot : ajouter une galerie physique temporaire, offrir la première vente sans commission. | Chef de projet |
+```
+
+---
+
+## 7. Modèle de contrat pour curateurs
+
+**Fichier :** `contract-curator-template.md`
+
+```markdown
+# CONTRAT DE PARTENARIAT – CURATEUR  
+## SANKOFA
+
+**Entre :** La Plateforme SANKOFA (décrite au contrat artiste)  
+**Et :** Le curateur (nom, adresse, email)
+
+## Préambule
+Le curateur souhaite sélectionner des œuvres d’artistes émergents et créer des expositions virtuelles sur la Plateforme.
+
+## Article 1 – Accès au back-office curation
+La Plateforme donne au curateur un accès à une interface lui permettant de :
+- Voir les œuvres en attente de publication,
+- Créer des collections thématiques (5 à 15 œuvres),
+- Publier des expositions virtuelles.
+
+## Article 2 – Commission
+Le curateur perçoit 5 % du prix de vente (hors taxes) pour toute œuvre vendue qui a été incluse dans une exposition virtuelle qu’il a créée, à condition que la vente soit intervenue dans les 60 jours suivant la première publication de l’exposition.
+
+La commission est versée mensuellement par virement Mobile Money ou bancaire.
+
+## Article 3 – Obligations
+- Le curateur s’engage à ne pas sélectionner d’œuvres contrefaisantes ou frauduleuses.
+- Il ne peut pas exiger de paiement des artistes pour être inclus dans une exposition.
+- Il doit respecter la charte de bonne conduite de la Plateforme.
+
+## Article 4 – Durée et résiliation
+Contrat d’une durée indéterminée, résiliable par l’une ou l’autre partie avec un préavis de 15 jours.
+
+En cas de manquement grave (favoritisme commercial, récupération d’œuvres hors plateforme), la Plateforme peut résilier immédiatement.
+
+*Fait à Douala, le …*  
+(Signatures)
+```
+
+---
+
+## 8. Plan de maintenance et roadmap post‑MVP
+
+**Fichier :** `roadmap-post-mvp.md`
+
+```markdown
+# Roadmap post‑MVP – SANKOFA
+
+## Trimestre 1 (après lancement) – Consolidation
+- Correction des bugs remontés
+- Optimisation des performances (temps de chargement, SEO)
+- Ajout du paiement par carte bancaire via Stripe (si pas fait)
+- Module de recommandation simple (œuvres similaires)
+- Support téléphonique premium pour collectionneurs
+
+## Trimestre 2 – Hub logistique et expansion régionale
+- Mise en place d’un hub central à Douala (inspection, reconditionnement)
+- Partenariat avec 2 transporteurs pour livraison Cameroun → Côte d’Ivoire
+- Lancement en Côte d’Ivoire (adaptation douane, recrutement artistes)
+- Intégration de l’API de suivi en temps réel
+
+## Trimestre 3 – Certificat blockchain amélioré
+- Enregistrement systématique sur Polygon avec métadonnées enrichies
+- Page de vérification publique avec galerie des certificats
+- Option pour l’acheteur de transférer la propriété du certificat (NFT)
+
+## Trimestre 4 – Fonctionnalités sociales et IA
+- Chat entre acheteurs et artistes (messagerie intégrée)
+- IA Deepseek pour générer des descriptions automatiques (suggestion)
+- Modération automatique des commentaires (toxicité)
+- Programme d’ambassadeurs artistes avec parrainage
+
+## Année 2 – Internationalisation
+- Nigeria (Lagos, Abuja) : intégration des procédures NCMM
+- Sénégal (Dakar) : partenariat avec écoles d’art
+- Afrique du Sud : ouverture à la diaspora
+- Application mobile native (React Native) pour iOS et Android
+```
+
+---
+
+## 9. Budget détaillé et plan de financement
+
+**Fichier :** `budget-financement.xlsx` (tableau ci‑dessous au format texte)
+
+```markdown
+# Budget prévisionnel – SANKOFA (première année)
+
+## Dépenses de développement (ponctuelles)
+
+| Poste | Montant (FCFA) | Commentaire |
+|-------|----------------|-------------|
+| Développement MVP (3 mois) | 8 000 000 | Équipe interne : 1 dev front, 1 dev back, 1 designer |
+| Intégration paiement Mobile Money | 1 500 000 | Agrégateur + tests |
+| Blockchain certificat (Polygon) | 500 000 | Smart contract + interface |
+| Achats de matériel (ordinateurs, serveurs test) | 1 000 000 | – |
+| **Total développement** | **11 000 000** | |
+
+## Dépenses récurrentes mensuelles
+
+| Poste | Montant / mois | Total année |
+|-------|----------------|-------------|
+| Hébergement Vercel Pro (20 $) | 12 500 | 150 000 |
+| Supabase (plan Pro – 25 $) | 15 600 | 187 200 |
+| Paynote (frais transaction 2%) | (variable) | – |
+| Stripe (si utilisé) | (variable) | – |
+| Deepseek API | 10 000 (estimation) | 120 000 |
+| Assurance transport (police annuelle) | 50 000 | 600 000 |
+| Support client (1 ETP part‑time) | 200 000 | 2 400 000 |
+| Marketing (ads, influenceurs) | 300 000 | 3 600 000 |
+| Salaires (chef projet + CM + dev maintenance) | 1 200 000 | 14 400 000 |
+| **Total récurrent mensuel** | **~1 800 000** | **~21 600 000** |
+
+## Recettes prévisionnelles (première année)
+
+| Source | Hypothèse | Montant annuel |
+|--------|-----------|----------------|
+| Commission sur ventes (25% puis 15%) | 300 ventes à 150 000 FCFA de panier moyen | 300 × 150 000 × 0,20 (moyenne) = 9 000 000 |
+| Frais de mise en avant (optionnel) | 10 artistes × 20 000 FCFA/mois × 6 mois | 1 200 000 |
+| Commissions curateur (5% prélevé sur la commission plateforme) | – | (inclus dans com. plateforme) |
+| **Total recettes** | | **10 200 000** |
+
+**Déficit prévisionnel première année** : Environ 22 400 000 FCFA (à financer par apport personnel, investisseurs ou subventions).
+
+## Plan de financement
+
+| Source | Montant (FCFA) |
+|--------|----------------|
+| Autofinancement (fondateur) | 5 000 000 |
+| Investisseurs (business angels) | 20 000 000 |
+| Subvention (Fonds d’aide aux industries créatives) | À solliciter (5 000 000) |
+| **Total** | **30 000 000** |
+```
+
+---
+
+## 10. Politique de confidentialité et mentions légales
+
+**Fichier :** `privacy-policy.md`
+
+```markdown
+# Politique de confidentialité – SANKOFA
+
+## 1. Collecte des données personnelles
+Nous collectons :
+- Pour les artistes : nom, email, téléphone, adresse, pièce d’identité, selfie, coordonnées bancaires (Mobile Money)
+- Pour les acheteurs : nom, email, téléphone, adresse de livraison
+- Données de navigation (cookies, adresse IP) pour améliorer le service
+
+## 2. Finalités
+- Gestion des comptes, authentification
+- Traitement des commandes, paiements, livraisons
+- Certificat d’authenticité (enregistrement blockchain)
+- Communication transactionnelle (ventes, expéditions, litiges)
+- Statistiques et amélioration de la plateforme
+
+## 3. Base légale
+- Exécution du contrat (vente)
+- Consentement (cookies, communications marketing)
+- Obligation légale (conservation des données fiscales)
+
+## 4. Durée de conservation
+- Données de compte : tant que le compte est actif + 3 ans après fermeture
+- Pièces d’identité : 1 an après validation de l’artiste
+- Transactions : 10 ans (exigence fiscale)
+
+## 5. Destinataires
+- Prestataires techniques (Supabase, Vercel, Paynote, Stripe, Deepseek)
+- Transporteurs partenaires (adresse de livraison)
+- Autorités légales si requis
+
+## 6. Droits des utilisateurs
+- Accès, rectification, effacement, opposition, portabilité
+- Droit de retirer son consentement (pour les cookies)
+- Contact : dpo@SANKOFA.com
+
+## 7. Cookies
+- Cookies fonctionnels (obligatoires)
+- Cookies analytiques (opt‑in) : Matomo ou Google Analytics anonymisé
+
+## 8. Modification de la politique
+La politique peut être mise à jour. Les utilisateurs seront informés par email.
+
+**Dernière mise à jour : 15 juin 2026**
+```
+
+**Fichier :** `legal-notices.md`
+
+```markdown
+# Mentions légales – SANKOFA
+
+**Éditeur de la plateforme**  
+Nom : [à compléter]  
+Forme juridique : SARL  
+Capital social : [X] FCFA  
+RCCM : [numéro]  
+Siège social : [adresse complète, Douala, Cameroun]  
+Téléphone : +237 XXXX  
+Email : contact@SANKOFA.com  
+Directeur de publication : [nom, prénom]
+
+**Hébergement**  
+Vercel Inc.  
+340 S Lemon Ave #4133, Walnut, CA 91789, États‑Unis  
+https://vercel.com
+
+**Base de données**  
+Supabase (hébergement via AWS Europe)
+
+**Paiement**  
+Paynote (agrégateur Mobile Money) – agrément BEAC n° [X]  
+Stripe (cartes bancaires) – pour les acheteurs internationaux
+
+**Propriété intellectuelle**  
+La marque SANKOFA, le logo, le nom de domaine et tous les éléments graphiques sont la propriété exclusive de la société. Toute reproduction est interdite.
+
+**Droit applicable**  
+Droit camerounais. En cas de litige, une solution amiable sera recherchée avant toute action judiciaire devant le tribunal de Douala.
+
+**Conformité**  
+SANKOFA respecte la loi n°2010/012 du 21 décembre 2010 sur la cybersécurité et la protection des données personnelles au Cameroun.
+```
+
+---
+
+Tous ces livrables sont désormais disponibles. Souhaitez-vous que je les regroupe dans un fichier archive (ex: ZIP) ou que je détaille un point particulier (ex: la mise en place technique du séquestre) ?
+
+# Compétences nécessaires pour l’exécution du projet SANKOFA
+
+## 1. Compétences techniques (hard skills)
+
+### 1.1. Développement front-end
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Next.js / React** | Avancé | Architecture du site, rendu côté serveur (SEO), gestion d’état. |
+| **TypeScript** | Intermédiaire | Typage statique pour réduire les bugs, meilleure maintenabilité. |
+| **Tailwind CSS** | Intermédiaire | Mise en page rapide, responsive, cohérence graphique. |
+| **PWA (Progressive Web App)** | Débutant à intermédiaire | Installation sur mobile, notifications push, cache offline partiel. |
+| **Intégration d’API** | Intermédiaire | Appels vers Supabase, Paynote, Stripe, transporteurs. |
+
+### 1.2. Développement back-end & base de données
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Node.js / Express** | Avancé | API routes sur Vercel, logique métier (paiement, litiges). |
+| **PostgreSQL** | Intermédiaire | Conception des tables, requêtes complexes, RLS (Row Level Security). |
+| **Supabase** | Intermédiaire | Utilisation de l’auth, storage, realtime, edge functions. |
+| **Gestion d’événements / webhooks** | Intermédiaire | Réception des confirmations de paiement, mise à jour des statuts. |
+
+### 1.3. Blockchain & certificat
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Web3.js / Ethers.js** | Débutant | Interaction avec la blockchain Polygon (envoi de hash). |
+| **Compréhension des smart contracts** | Débutant | Déployer un contrat simple pour stocker les empreintes. |
+| **Génération de PDF** | Débutant | Création du certificat d’authenticité (ex: `@react-pdf/renderer`). |
+
+### 1.4. Paiements & logistique
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Intégration Mobile Money** | Intermédiaire | API Paynote, gestion des callbacks, séquestre. |
+| **Stripe (cartes)** | Débutant | Paiements internationaux, webhooks. |
+| **API de suivi de colis** | Débutant | Connexion avec transporteurs (DHL, Creseada, etc.). |
+
+### 1.5. DevOps & hébergement
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Vercel (déploiement)** | Intermédiaire | Configuration des variables d’environnement, preview deployments. |
+| **Git / GitHub Actions** | Intermédiaire | CI/CD, tests automatisés avant déploiement. |
+| **Surveillance (monitoring)** | Débutant | Mise en place de Sentry / Logtail pour les erreurs. |
+
+### 1.6. Tests & qualité
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Jest / Supertest** | Intermédiaire | Tests unitaires et d’intégration sur le backend. |
+| **Cypress / Playwright** | Intermédiaire | Tests end‑to‑end (parcours d’achat, litige). |
+
+---
+
+## 2. Compétences en conception (design & UX)
+
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **UI design (Figma, Stitch)** | Intermédiaire | Maquettes, composants réutilisables, style cohérent (terracotta, beige). |
+| **UX / ergonomie** | Intermédiaire | Parcours d’inscription fluide, tunnel de paiement rassurant, gestion des erreurs. |
+| **Accessibilité (WCAG)** | Débutant | Assurer une utilisation par tous (lecteurs d’écran, contraste). |
+
+---
+
+## 3. Compétences en gestion de projet & organisation
+
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Méthodologie agile (Scrum / Kanban)** | Intermédiaire | Planification des sprints, suivi des tickets (GitHub Projects / Trello). |
+| **Gestion des risques** | Intermédiaire | Anticiper les pannes paiement, litiges, retards logistiques. |
+| **Communication interne & externe** | Avancé | Coordination entre devs, support, artistes, transporteurs. |
+| **Rédaction de documentation** | Intermédiaire | Spécifications, guides, comptes‑rendus. |
+
+---
+
+## 4. Compétences juridiques & conformité
+
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Droit du numérique (Cameroun / Côte d’Ivoire / Sénégal)** | Expert (externe) | Rédaction des CGU, politique confidentialité, contrats artistes. |
+| **Droit d’auteur / propriété intellectuelle** | Intermédiaire | Garantir que la plateforme ne contrefait pas, gérer les litiges de plagiat. |
+| **Régulation des paiements (BEAC, AML)** | Débutant | Comprendre les obligations de séquestre et de lutte anti‑blanchiment. |
+| **Douanes / exportation** | Intermédiaire | Connaître les procédures NCMM (Nigeria), autorisations ivoiriennes. |
+
+---
+
+## 5. Compétences métier (art & marché africain)
+
+| Compétence | Niveau requis | Pourquoi |
+|------------|---------------|----------|
+| **Connaissance de l’art contemporain africain** | Intermédiaire | Curation, valorisation, mise en récit des œuvres. |
+| **Réseau dans les communautés artistiques** | Avancé | Recruter les premiers artistes ambassadeurs, créer des partenariats. |
+| **Compréhension du comportement d’achat local** | Intermédiaire | Prix psychologique, moyens de paiement, logistique adaptée. |
+
+---
+
+## 6. Soft skills (compétences comportementales)
+
+| Compétence | Importance | Exemple d’usage |
+|------------|------------|------------------|
+| **Résolution de problèmes** | Critique | Gérer un litige complexe, un bug de paiement bloquant. |
+| **Autonomie et prise d’initiative** | Élevée | Peu d’intermédiaires, chacun doit proposer des solutions. |
+| **Adaptabilité** | Élevée | Les réglementations changent, les transporteurs aussi. |
+| **Empathie / orientation client** | Élevée | Aider un artiste non technophile, rassurer un acheteur nerveux. |
+| **Gestion du stress** | Élevée | Périodes de lancement, pics de litiges, pannes techniques. |
+
+---
+
+## 7. Rôles recommandés et répartition des compétences
+
+| Rôle | Compétences clés | Statut recommandé |
+|------|------------------|-------------------|
+| **Chef de projet / Product Owner** | Agile, communication, métier art, gestion des risques | Interne (fondateur ou associé) |
+| **Développeur full‑stack (1)** | Next.js, TypeScript, Supabase, paiements | Interne ou freelance senior |
+| **Développeur front‑end (1)** | React/Tailwind, PWA, Stitch | Freelance junior/intermédiaire |
+| **UI/UX designer** | Figma, Stitch, ergonomie | Freelance (temps partiel) |
+| **Community manager / Support** | WhatsApp, empathie, rédaction | Interne (débutant motivé) |
+| **Expert juridique** | Droit numérique, contrats | Externe (cabinet) |
+| **Expert comptable / fiscaliste** | Fiscalité locale, AML | Externe (consultant) |
+| **Conseiller logistique** | Transport, douanes | Externe ou partenaire transporteur |
+
+---
+
+## 8. Plan de montée en compétences (si ressources limitées)
+
+| Compétence manquante | Comment l’acquérir rapidement |
+|----------------------|-------------------------------|
+| Next.js / Supabase | Tutoriel officiel, clone d’un projet e‑commerce existant. |
+| Intégration Mobile Money | Utiliser un agrégateur (Paynote) – leur documentation + sandbox. |
+| Blockchain (Polygon) | Suivre un cours court (ex: Buildspace) pour déployer un smart contract simple. |
+| Droit d’auteur local | Consulter un avocat pour 1h de formation en ligne. |
+| UX pour marketplace | Lire “Don’t Make Me Think” + analyser des concurrents (Pavillon 54, Latitudes). |
+
+---
+
+Cette liste servira de base pour recruter, former ou externaliser. Souhaitez-vous que je détaille les **niveaux de maîtrise** (ex: “Intermédiaire = capable de livrer une fonctionnalité avec peu de supervision”) ou que j’établisse une **matrice RACI** des responsabilités ?
+
+
+
+Pour être complet, je préconise l’adoption d’un **système global intégré** qui couvre l’ensemble du cycle de vie du projet SANKOFA, de l’idéation à la maintenance, en passant par le développement, le déploiement, la gestion des compétences et l’amélioration continue.
+
+Voici ma recommandation « complète », organisée en 6 piliers interdépendants.
+
+---
+
+## 1. Stack technique unifiée (choix définitifs)
+
+| Composant | Choix préconisé | Justification |
+|-----------|----------------|----------------|
+| **Frontend** | Next.js 14 (App Router) + TypeScript + Tailwind CSS | SEO, performance, PWA, intégration fluide avec Vercel |
+| **UI prototyping** | Google Stitch (MCP) + export vers Figma | Accélère la conception, compatible avec l’agent Antigravity |
+| **Backend / API** | Next.js API routes (serverless) + Supabase Edge Functions | Pas de serveur dédié, logique métier près des données |
+| **Base de données** | Supabase (PostgreSQL) | Auth, storage, realtime, RLS, gratuit au démarrage |
+| **Paiement** | Paynote (Mobile Money) + Stripe (cartes) | Couvre 100% des acheteurs (locaux et internationaux) |
+| **Blockchain** | Polygon (via Thirdweb ou simple contrat) | Faible coût, compatibilité Ethereum, facile à intégrer |
+| **Logistique** | API personnalisée + partenaire local (Creseada, DHL) | Tracking, assurance, hub central en phase 2 |
+| **IA / assistant** | Deepseek API | Chatbot support, génération descriptions, modération |
+| **Hébergement** | Vercel (Pro plan) | CI/CD natif, previews, scaling automatique |
+| **Monitoring** | Sentry (erreurs) + Logtail (logs) | Détection proactive des pannes |
+| **Tests** | Jest + Supertest (backend), Cypress (E2E) | Qualité et non-régression |
+
+---
+
+## 2. Équipe minimale complète (rôles & compétences)
+
+| Rôle | Compétences clés | Type | Charge estimée |
+|------|------------------|------|----------------|
+| **Product Owner / Chef de projet** | Agile, art africain, gestion risques | Interne | 100% |
+| **Développeur full‑stack (lead)** | Next.js, Supabase, TypeScript, paiements | Interne ou freelance senior | 100% |
+| **Développeur front‑end** | React/Tailwind, PWA, Stitch | Freelance junior | 50% (puis 100%) |
+| **UI/UX designer** | Figma, Stitch, ergonomie | Freelance | 50% (jusqu’au MVP) |
+| **Community manager / Support** | WhatsApp, empathie, rédaction | Interne | 100% |
+| **Expert juridique (externe)** | Droit numérique, contrats, douanes | Cabinet | 1 journée/mois |
+| **Expert comptable (externe)** | Fiscalité locale, AML | Cabinet | 1 journée/trimestre |
+
+**Total équivalent temps plein** : 3,5 ETP (interne) + prestataires ponctuels.
+
+---
+
+## 3. Méthodologie et outils de pilotage
+
+| Domaine | Outil / Méthode | Usage |
+|---------|----------------|-------|
+| **Gestion de projet** | GitHub Projects (Kanban) + issues | Suivi des tâches, sprints |
+| **Documentation** | Markdown dans le repo + Notion | Spécifications, comptes‑rendus |
+| **Communication** | Slack (interne) + WhatsApp (support) | Équipe et utilisateurs |
+| **CI/CD** | GitHub Actions + Vercel | Tests automatiques, déploiement |
+| **Versionnage** | Git (flow feature branch) | Code source |
+| **Recette utilisateur** | Programme de beta‑testeurs (10 artistes, 10 acheteurs) | Validation terrain |
+
+---
+
+## 4. Plan d’exécution complet (phases)
+
+### Phase 0 – Préparation (1 mois)
+- Rédaction des contrats artiste/curateur, CGU, politique confidentialité
+- Recrutement de l’équipe (lead dev, support)
+- Création des maquettes (Stitch) validées par des artistes
+
+### Phase 1 – Développement MVP (2 mois)
+- Setup du projet Next.js + Supabase
+- Implémentation de l’auth (magic link, OTP)
+- Module dépôt d’œuvres et validation admin
+- Panier + paiement Paynote (séquestre)
+- Livraison simple (pas de hub, tracking basique)
+- Génération certificat PDF + hash blockchain (testnet)
+- Back-office admin basique
+
+### Phase 2 – Tests & recette (1 mois)
+- Tests unitaires et E2E
+- Recette avec 5 artistes + 5 acheteurs (sandbox)
+- Corrections bugs bloquants
+- Audit de sécurité (OWASP)
+
+### Phase 3 – Lancement (J0)
+- Mise en production sur Vercel
+- Activation des ambassadeurs
+- Vernissage virtuel + campagnes ads
+- Support actif (WhatsApp)
+
+### Phase 4 – Post‑lancement (3 mois)
+- Collecte des métriques (taux conversion, litiges, NPS)
+- Itérations rapides (2 semaines/sprint)
+- Ajout du hub logistique (Douala)
+- Extension à la Côte d’Ivoire
+
+---
+
+## 5. Gestion des risques (version complète)
+
+| Risque | Mitigation | Responsable | Plan B |
+|--------|------------|-------------|--------|
+| Panne API paiement | Utiliser un second agrégateur (ex: Stripe Connect) | Lead dev | Basculer manuel en 2h |
+| Litige non résolu | Médiateur externe + fonds de garantie | Support | Remboursement automatique |
+| Artiste ne livre pas | Séquestre obligatoire, retrait automatique | Admin | Remboursement acheteur |
+| Casse transport | Assurance incluse | Logistics | Indemnisation sous 7j |
+| Non‑conformité douanière | Fiches pays, courtier partenaire | Juriste | Livraison nationale uniquement |
+| Fuite de données | Chiffrement, audits réguliers, RLS | DPO externe | Notification + rotation clés |
+
+---
+
+## 6. Indicateurs de pilotage (tableau de bord complet)
+
+| Indicateur | Cible | Source | Fréquence |
+|------------|-------|--------|-----------|
+| **GMV (volume brut des ventes)** | +20 % / mois | Base de données | Hebdomadaire |
+| **Taux de conversion visite → achat** | > 3 % | Analytics | Hebdomadaire |
+| **Panier moyen** | > 100 000 FCFA | Base de données | Hebdomadaire |
+| **Taux de litiges** | < 5 % | Table litiges | Mensuel |
+| **Délai médian de livraison** | < 7 jours | Tracking transporteur | Mensuel |
+| **NPS (satisfaction acheteur)** | > 40 | Enquête email | Trimestriel |
+| **Rétention artiste à 6 mois** | > 60 % | Base de données | Semestriel |
+| **Temps de réponse support** | < 2h (jour), < 12h (nuit) | Outil ticketing | Quotidien |
+
+---
+
+## 7. Budget complet (prévisionnel 12 mois)
+
+| Catégorie | Montant (FCFA) |
+|-----------|----------------|
+| Développement (interne + freelances) | 12 000 000 |
+| Hébergement & API (Vercel, Supabase, Paynote, Stripe) | 3 000 000 |
+| Assurance & logistique | 1 500 000 |
+| Marketing (ads, influenceurs, événements) | 5 000 000 |
+| Support client (1 ETP) | 3 600 000 |
+| Juridique & comptabilité | 1 500 000 |
+| Imprévus (10 %) | 2 660 000 |
+| **Total** | **29 260 000** |
+
+**Financement visé** : autofinancement (5 M) + investisseurs (20 M) + subvention (4 M).
+
+---
+
+## 8. Livrables finaux garantissant la complétude
+
+Avant le lancement, ces documents doivent être finalisés et stockés dans un repository partagé :
+
+- `PRD.md` (Product Requirements Document)
+- `architecture.md` (technique)
+- `user-stories-full.md`
+- `test-plan.md`
+- `launch-plan.md`
+- `risk-management-plan.md`
+- `budget-financement.xlsx`
+- `privacy-policy.md` + `legal-notices.md`
+- Contrats (artiste, curateur, transporteur)
+- Guides utilisateur (artistes, acheteurs)
+- Plan de maintenance + roadmap post-MVP
+- Matrice des compétences (RACI)
+
+---
+
+Cette préconisation « complète » couvre la technique, l’humain, les processus, les risques et le budget. Elle est prête à être exécutée. Souhaitez-vous que je la résume sous forme de checklist actionnable ou que je détaille un des piliers (ex: le plan de test ou le budget) ?
+
+Je vous livre le détail complet des **6 piliers** (plus les deux compléments que sont le budget et les livrables) pour le projet SANKOFA.
+
+---
+
+# PILIER 1 – STACK TECHNIQUE UNIFIÉE
+
+## 1.1. Frontend
+
+| Élément | Choix | Détails |
+|---------|-------|---------|
+| Framework | Next.js 14 (App Router) | Rendu côté serveur (SSR) pour le SEO des fiches œuvres, génération statique pour les pages d’accueil et catalogue. |
+| Langage | TypeScript (strict mode) | Typage des props, des réponses API, réduction des bugs de runtime. |
+| Styling | Tailwind CSS + composants personnalisés | Utilitaire-first, responsive, personnalisation via `tailwind.config.js` (couleurs terracotta, beige, vert forêt). |
+| Gestion d’état | Context API + `useReducer` (pas de Redux) | Pas besoin de bibliothèque lourde ; état global pour le panier, les filtres, l’utilisateur. |
+| PWA | Manifest + Service Worker | Installation sur mobile, notifications push, cache du catalogue en lecture seule. |
+| Appels API | `@supabase/supabase-js` + fetch natif | Auth, base de données, storage ; les appels à Paynote/Stripe via API routes. |
+| SEO | Métadonnées dynamiques, sitemap, robots.txt | Chaque œuvre a sa propre page avec titre, description, balises Open Graph. |
+
+## 1.2. UI Prototyping
+
+| Outil | Rôle | Workflow |
+|-------|------|----------|
+| Google Stitch (MCP) | Génération rapide de maquettes Next.js/Tailwind | Prompt en langage naturel → code React exportable. Utilisation en phase de conception avec l’agent Antigravity. |
+| Figma | Refinement et design system | Import du code Stitch, création de composants réutilisables (boutons, cartes œuvre, formulaires). |
+
+## 1.3. Backend & API
+
+| Composant | Choix | Justification |
+|-----------|-------|----------------|
+| API routes | Next.js (serverless) | Hébergées sur Vercel, sans serveur dédié, scaling automatique. |
+| Edge Functions | Supabase Edge Functions | Pour les webhooks (Paynote, Stripe) et les traitements sensibles (séquestre). |
+| Base de données | Supabase PostgreSQL | Tables : users, artists, artworks, orders, escrow_transactions, certificates, litigations, reviews. |
+| Row Level Security (RLS) | Activé sur toutes les tables | Politiques : artiste peut voir/modifier ses propres œuvres, acheteur ne voit que ses commandes, admin tout. |
+| Stockage fichiers | Supabase Storage | Buckets : `artwork-photos` (images publiques), `id-documents` (privé), `certificates-pdf` (public après vente). |
+| Realtime | Supabase Realtime | Notifications de changement de statut commande, chat de support. |
+
+## 1.4. Paiement et séquestre
+
+| Service | Rôle | Intégration |
+|---------|------|--------------|
+| Paynote | Agrégateur Mobile Money (Orange Money, MTN MoMo) | API REST : collecte, séquestre, payout. Webhooks pour statut de paiement. |
+| Stripe Connect | Cartes bancaires (acheteurs internationaux) | Paiement en FCFA converti, séquestre géré par Stripe (marketplace standard). |
+| Compte séquestre technique | Compte Paynote dédié | Les fonds sont bloqués jusqu’à validation acheteur. |
+
+**Flux de séquestre détaillé :**
+1. Acheteur initie paiement → Paynote collecte et bloque les fonds sur le compte séquestre.
+2. Webhook Paynote `payment.succeeded` → mise à jour `orders.escrow_status = 'pending'`.
+3. Artiste expédie → changement `orders.delivery_status = 'shipped'`.
+4. Acheteur valide (ou délai 48h) → webhook déclenché.
+5. Appel à l’API Paynote payout → virement net vers Mobile Money de l’artiste.
+6. En cas de litige, les fonds restent bloqués jusqu’à décision admin.
+
+## 1.5. Blockchain (certificat d’authenticité)
+
+| Composant | Choix | Détails |
+|-----------|-------|---------|
+| Réseau | Polygon (Mainnet) | Frais de gaz très bas (< 0,01 $). Utilisation du testnet Mumbai pour les tests. |
+| Stockage hash | Smart contract unique | Fonction `storeArtHash(bytes32 hash, string memory metadataURI)` émettant un event. |
+| Metadata | Lien vers JSON hébergé sur Supabase Storage | Contient : id œuvre, titre, artiste, dimensions, date vente, URL certificat PDF. |
+| Interface | `ethers.js` v6 | Connexion à un nœud Infura ou Alchemy. Clé privée du wallet de la plateforme (sécurisée dans Vercel env). |
+| Gas | Payé par la plateforme | Budget mensuel 10 $ pour les premières milliers de transactions. |
+
+## 1.6. Logistique
+
+| Phase | Solution | Intégration |
+|-------|----------|--------------|
+| Phase 1 (MVP) | Expédition directe artiste → acheteur, code de suivi fourni par transporteur (DHL, Creseada). | Artiste saisit manuellement le numéro de suivi ; API DHL pour tracking optionnelle. |
+| Phase 2 (hub central) | Hub à Douala : réception, inspection, réexpédition. | Logiciel interne (Next.js) pour scan de codes-barres, impression étiquette. |
+| Assurance | Police cadre avec partenaire assurance (ex: AXA Cameroun). | Coût inclus dans les frais de livraison (forfait 5 000 FCFA par colis). |
+
+## 1.7. IA / Assistant
+
+| Usage | Modèle | Intégration |
+|-------|--------|--------------|
+| Chatbot support | Deepseek API (version légère) | Embedding sur la page d’aide, répond aux questions fréquentes (délais, litiges, paiement). |
+| Génération description œuvre | Deepseek API | L’artiste peut cliquer « Générer une description » à partir du titre et des mots-clés ; il modifie avant soumission. |
+| Modération de contenu | Deepseek API + règles locales | Détection de contenu offensant dans les descriptions et les avis. |
+
+## 1.8. Hébergement & CI/CD
+
+| Service | Rôle | Configuration |
+|---------|------|----------------|
+| Vercel (Pro) | Hébergement Next.js | Branche `main` → production, `develop` → preview. Limite de fonctions : 60s timeout, adapté à nos API routes. |
+| Supabase Cloud | Base de données, storage, edge functions | Plan Pro (25 $/mois) pour RLS, backups quotidiens. |
+| GitHub Actions | CI/CD | Workflows : `test.yml` (Jest, Cypress), `deploy-staging.yml` (déploiement auto sur Vercel staging). |
+| Monitoring | Sentry + Logtail | Sentry capture les erreurs frontend/backend ; Logtail centralise les logs des edge functions. |
+
+---
+
+# PILIER 2 – ÉQUIPE MINIMALE COMPLÈTE
+
+## 2.1. Rôles internes (rémunérés)
+
+| Rôle | Compétences | Responsabilités | Charge |
+|------|-------------|----------------|--------|
+| **Product Owner / Chef de projet** | Agile, connaissance art africain, gestion des risques, rédaction | Priorisation backlog, relations avec artistes/curateurs, suivi budget, reporting investisseurs. | 100 % |
+| **Lead développeur full‑stack** | Next.js, TypeScript, Supabase, API paiement, blockchain | Architecture technique, implémentation des modules critiques (paiement, séquestre, certificat), revue de code. | 100 % |
+| **Développeur front‑end** | React, Tailwind, PWA, Stitch | Composants UI, intégration maquettes, responsive, optimisation performance. | 100 % (peut être 50 % au début) |
+| **Community manager / Support** | WhatsApp, empathie, rédaction, réseaux sociaux | Accueil des artistes, animation communauté, réponse aux litiges niveau 1, modération avis. | 100 % |
+
+## 2.2. Rôles externes (prestataires)
+
+| Rôle | Compétences | Intervention | Coût estimé |
+|------|-------------|--------------|--------------|
+| **UI/UX designer** | Figma, Stitch, ergonomie, design system | Création des maquettes initiales, itérations sur retour utilisateur. | 500 000 FCFA/mois (temps partiel) |
+| **Expert juridique** (cabinet) | Droit numérique Cameroun, Côte d’Ivoire, Sénégal ; contrats ; douanes | Rédaction CGU, politique confidentialité, contrats artistes/curateurs, conformité CNIL. | 200 000 FCFA/mois (forfait) |
+| **Expert comptable / fiscaliste** | Fiscalité locale, AML, TVA | Déclarations fiscales, conseil sur retenue à la source, audits. | 150 000 FCFA/trimestre |
+| **Conseiller logistique** | Transport international, douanes, assurance | Mise en place du hub, choix transporteurs, police d’assurance. | 300 000 FCFA (ponctuel) |
+
+## 2.3. Plan de montée en compétences interne
+
+| Compétence manquante | Action | Délai |
+|----------------------|--------|-------|
+| Supabase (RLS, Edge Functions) | Suivre le cours « Supabase Fundamentals » (gratuit) | 1 semaine |
+| Intégration Paynote | Demander un compte sandbox, tester les webhooks localement | 3 jours |
+| Smart contract Polygon | Tutoriel Buildspace « Deploy your own NFT » adapté | 1 semaine |
+| Gestion des litiges | Lire « Online Dispute Resolution » (UNCTAD) + cas pratiques | 2 jours |
+
+---
+
+# PILIER 3 – MÉTHODOLOGIE ET OUTILS DE PILOTAGE
+
+## 3.1. Cycle de développement (sprints de 2 semaines)
+
+| Sprint | Activités | Livrables |
+|--------|-----------|------------|
+| Planification | Revue du backlog, priorisation, estimation | Tickets GitHub assignés |
+| Développement | Implémentation des user stories, tests unitaires | Code commité, PR ouverte |
+| Revue de code | Relecture par au moins un autre dev | PR mergée |
+| Test | Tests d’intégration, recette sur staging | Rapport de test |
+| Déploiement | Mise en production (Vercel) | Release tag |
+| Rétrospective | Analyse des points bloquants, améliorations | Compte-rendu |
+
+## 3.2. Outils de suivi
+
+| Outil | Usage | Lien (exemple) |
+|-------|-------|----------------|
+| GitHub Projects (Kanban) | Backlog, sprint courant, done | `github.com/orgs/SANKOFA/projects/1` |
+| Issues GitHub | Bugs, user stories, tâches | Labels : `bug`, `feature`, `documentation`, `priority-high` |
+| Notion | Documentation interne, compte-rendus, roadmaps | `notion.so/SANKOFA` |
+| Slack | Communication synchrone entre devs, support escalade | Canaux `#dev`, `#support`, `#marketing` |
+| WhatsApp Business | Support utilisateur, notifications transactionnelles | Numéro dédié avec API |
+
+## 3.3. Processus de validation des livrables
+
+| Livrable | Validé par | Critères |
+|----------|-------------|----------|
+| PRD, architecture, user stories | PO + lead dev + experts externes | Cohérence, faisabilité, conformité légale |
+| Maquettes | PO + artistes ambassadeurs | Parcours utilisateur fluide, accessibilité |
+| Code (PR) | Lead dev | Tests passants, couverture > 80 %, pas de regression |
+| Déploiement staging | PO + support | Tests manuels sur les cas critiques (paiement, litige) |
+| Mise en production | PO + lead dev | Approval après 24h sans bug bloquant sur staging |
+
+---
+
+# PILIER 4 – PLAN D’EXÉCUTION COMPLET (PHASES)
+
+## Phase 0 : Préparation (J-30 à J0)
+
+| Activité | Responsable | Durée |
+|----------|-------------|-------|
+| Rédaction des documents légaux (CGU, contrats, politique confidentialité) | Juriste | 1 semaine |
+| Recrutement lead dev et community manager | PO | 2 semaines |
+| Création des maquettes (Stitch + Figma) | Designer + PO | 2 semaines |
+| Installation de l’environnement de développement (Vercel, Supabase) | Lead dev | 2 jours |
+| Définition des indicateurs de succès (KPIs) | PO | 1 jour |
+| Recrutement des 10 artistes ambassadeurs (béta) | CM | 3 semaines |
+
+## Phase 1 : Développement MVP (semaines 1 à 8)
+
+| Sprint | User stories prioritaires | Livrables |
+|--------|---------------------------|-----------|
+| 1 | Inscription artiste, dépôt œuvre, validation admin | Profil artiste, formulaire dépôt, back-office validation |
+| 2 | Catalogue public, fiche œuvre, filtre, recherche | Navigation fonctionnelle |
+| 3 | Panier, paiement Mobile Money (Paynote sandbox), séquestre | Flux de commande complet (hors livraison réelle) |
+| 4 | Expédition simple (saisie manuelle tracking), confirmation réception, déblocage fonds | Cycle vente complet avec test en sandbox |
+| 5 | Génération certificat PDF, stockage hash (testnet), notification email/WhatsApp | Certificat téléchargeable |
+| 6 | Espace admin (gestion utilisateurs, œuvres, commandes), tableau de bord KPIs | Back-office |
+| 7 | Tests unitaires + intégration, corrections bugs, documentation API | Qualité |
+| 8 | Recette avec 5 artistes + 5 acheteurs (sandbox), formation support | Validation terrain |
+
+## Phase 2 : Tests & recette finale (semaines 9 à 12)
+
+| Activité | Détail | Critère de succès |
+|----------|--------|-------------------|
+| Tests end‑to‑end (Cypress) | Parcours : inscription → dépôt → achat → livraison → litige | 100 % des cas critiques passent |
+| Test de charge (k6) | Simulation de 100 utilisateurs simultanés | Temps de réponse < 2s, pas d’erreur 5xx |
+| Audit de sécurité | Utilisation de ZAP, vérification des clés API, RLS Supabase | Aucune vulnérabilité critique |
+| Recette utilisateur finale | 10 artistes + 10 acheteurs (environnement staging réel) | Taux de satisfaction > 80 % |
+| Correction des bugs bloquants | Niveau sévérité 1 (impossible d’acheter) | 0 bug bloquant restant |
+
+## Phase 3 : Lancement (J0)
+
+| Horaire (Cameroun) | Action | Canal |
+|--------------------|--------|-------|
+| 9h00 | Mise en production (switch DNS, release Vercel) | Interne |
+| 10h00 | Envoi email à la liste d’attente (500 inscrits) | Sendinblue |
+| 11h00 | Post Instagram / Facebook + story | Réseaux sociaux |
+| 14h00 | Webinaire live : « Présentation de SANKOFA » | YouTube (lien partagé) |
+| 18h00 | Vernissage virtuel (6 artistes, commentaires en direct) | Zoom + page dédiée |
+| 20h00 | Début des campagnes Google Ads / Instagram Ads | Google Ads, Meta Business |
+
+**Indicateurs de succès J0** : 1000 visiteurs uniques, 10 commandes, 0 bug critique remonté.
+
+## Phase 4 : Post-lancement (mois 1 à 3)
+
+| Activité | Fréquence | Responsable |
+|----------|-----------|-------------|
+| Analyse quotidienne des KPIs (taux conversion, panier moyen, litiges) | Quotidienne | PO |
+| Relance paniers abandonnés (email + WhatsApp) | Automatisée (24h) | Dev |
+| Campagnes d’acquisition continue (Google, Instagram) | Continue | CM |
+| Collecte NPS et avis utilisateurs | Hebdomadaire | CM |
+| Sprint d’itération (2 semaines) – corrections et petites améliorations | Continue | Toute l’équipe |
+| Mise en place du hub logistique (Douala) | Mois 3 | Lead dev + consultant logistique |
+
+## Phase 5 : Expansion (mois 4 à 12)
+
+| Mois | Action | Conditions préalables |
+|------|--------|----------------------|
+| 4 | Lancement Côte d’Ivoire (partenariats locaux, adaptation douane) | Hub Douala opérationnel |
+| 6 | Intégration de l’API de suivi avancée (transporteur unique) | Au moins 50 commandes/mois |
+| 8 | Ajout du paiement par carte (Stripe) | Demande des acheteurs internationaux |
+| 9 | Lancement Sénégal (Dakar) | Partenariat avec écoles d’art |
+| 12 | Bilan annuel, collecte de fonds série A | Atteinte de 100 artistes actifs |
+
+---
+
+# PILIER 5 – GESTION DES RISQUES (COMPLÈTE)
+
+## 5.1. Matrice des risques (probabilité x impact)
+
+| ID | Risque | P (1-5) | I (1-5) | Score | Mesure préventive | Plan de continuité | Responsable |
+|----|--------|---------|---------|-------|-------------------|--------------------|-------------|
+| R01 | Panne API Paynote (paiement) | 2 | 5 | 10 | Monitoring, backup Stripe Connect | Basculer manuel sur Stripe, informer utilisateurs | Lead dev |
+| R02 | Litige non résolu en < 10 jours | 3 | 4 | 12 | Médiateur formé, fonds de garantie | Escalade externe, dédommagement accéléré | Support |
+| R03 | Artiste ne livre pas | 2 | 5 | 10 | Séquestre, vérification identité, retrait récidive | Remboursement total acheteur, puis recours | Admin |
+| R04 | Casse transport | 3 | 4 | 12 | Assurance incluse, emballage standardisé | Artiste indemnisé, acheteur remboursé | Logistics |
+| R05 | Non-conformité douanière (Nigeria) | 4 | 5 | 20 | Fiche pays, courtier partenaire, formation | Livraison nationale uniquement, ajustement procédure | Juriste |
+| R06 | Fuite données personnelles | 2 | 5 | 10 | Chiffrement, RLS, audits semestriels, DPO externe | Notification CNIL, rotation clés, indemnisation | DPO |
+| R07 | Faible adoption (< 20 ventes/mois) | 4 | 5 | 20 | Marketing agressif, ambassadeurs, commissions réduites | Pivot : galerie physique temporaire, offre 0% commission | PO |
+| R08 | Bug critique de paiement (fonds perdus) | 1 | 5 | 5 | Tests intensifs, revue de code paiement | Annulation commande, remboursement manuel via fonds propre | Lead dev |
+| R09 | Concurrence agressive (nouvelle plateforme) | 3 | 3 | 9 | Veille concurrentielle, différenciation (blockchain, local) | Renforcer communauté, baisser commissions temporairement | PO |
+| R10 | Départ soudain d’un développeur clé | 3 | 4 | 12 | Documentation, cross-training, revue de code collective | Recrutement freelance de backup, reprise par lead dev | PO |
+
+## 5.2. Fonds de garantie (pour litiges)
+
+- **Alimentation** : 1 % de chaque vente est prélevé et placé sur un compte dédié.
+- **Utilisation** : Remboursement rapide des acheteurs en cas de litige avéré, avant recours contre l’artiste.
+- **Montant cible** : 2 000 000 FCFA (atteint après environ 200 ventes à 150 000 FCFA de panier moyen).
+
+## 5.3. Assurance transport (police cadre)
+
+- **Souscripteur** : SANKOFA pour le compte des artistes.
+- **Couverture** : Vol, perte, casse totale ou partielle.
+- **Indemnisation** : Valeur déclarée (prix de vente net après commission), déduction d’une franchise de 10 %.
+- **Procédure** : L’acheteur signale dans les 48h, fournit photos, la plateforme déclare sinistre.
+
+---
+
+# PILIER 6 – INDICATEURS DE PILOTAGE (TABLEAU DE BORD COMPLET)
+
+## 6.1. Indicateurs commerciaux (quotidiens)
+
+| Indicateur | Définition | Cible | Seuil d’alerte |
+|------------|------------|-------|----------------|
+| GMV (volume brut) | Somme des prix des œuvres vendues (avant commission) | Croissance +10 % / mois | Baisse 2 mois consécutifs |
+| Nombre de commandes | Transactions validées par acheteur | > 5 / jour | < 2 / jour |
+| Panier moyen | GMV / nombre de commandes | > 100 000 FCFA | < 50 000 FCFA |
+| Taux de conversion | (Commandes / visiteurs uniques) × 100 | > 3 % | < 1 % |
+| Panier abandonné | % de paniers créés sans paiement | < 60 % | > 80 % |
+
+## 6.2. Indicateurs opérationnels (hebdomadaires)
+
+| Indicateur | Définition | Cible | Seuil d’alerte |
+|------------|------------|-------|----------------|
+| Délai médian de livraison | Entre validation paiement et confirmation réception | < 7 jours | > 14 jours |
+| Taux de litiges | (Litiges ouverts / commandes) × 100 | < 5 % | > 10 % |
+| Temps de résolution litige | Délai médian entre ouverture et décision | < 10 jours | > 20 jours |
+| Taux de retour (non-conformité) | (Retours / commandes) × 100 | < 2 % | > 5 % |
+| Disponibilité API | Uptime des services critiques (Paynote, Stripe, Supabase) | > 99,5 % | < 99 % |
+
+## 6.3. Indicateurs de satisfaction (mensuels)
+
+| Indicateur | Méthode | Cible | Seuil d’alerte |
+|------------|---------|-------|----------------|
+| NPS (acheteurs) | « Recommanderiez-vous SANKOFA ? » (0-10) | > 40 | < 20 |
+| NPS (artistes) | Idem | > 50 | < 30 |
+| Taux de rétention artistes à 6 mois | Artistes ayant déposé ≥ 1 œuvre et non désactivés | > 60 % | < 40 % |
+| Taux de rétention acheteurs à 3 mois | Acheteurs ayant fait ≥ 1 achat et revenu | > 30 % | < 15 % |
+
+## 6.4. Indicateurs financiers (trimestriels)
+
+| Indicateur | Définition | Cible | Seuil d’alerte |
+|------------|------------|-------|----------------|
+| Commission moyenne perçue | (Commission totale / nombre de commandes) | 20 % du prix moyen | < 15 % |
+| Coût d’acquisition client (CAC) | Dépenses marketing / nouveaux artistes + acheteurs | < 20 000 FCFA | > 40 000 FCFA |
+| Lifetime value (LTV) | Marge brute générée par un artiste sur 12 mois | > 200 000 FCFA | < 100 000 FCFA |
+| Ratio LTV/CAC | | > 3 | < 1,5 |
+
+## 6.5. Tableau de bord automatisé
+
+- **Outil** : Basé sur Supabase + Metabase (open source) ou Google Looker Studio.
+- **Actualisation** : Quotidienne pour les métriques commerciales, hebdomadaire pour les opérationnelles.
+- **Accès** : PO, lead dev, investisseurs (version limitée).
+
+---
+
+# COMPLÉMENT 1 – BUDGET DÉTAILLÉ (SUR 12 MOIS)
+
+## Dépenses ponctuelles (développement et setup)
+
+| Poste | Détail | Montant (FCFA) |
+|-------|--------|----------------|
+| Développement MVP (3 mois) | Lead dev (100 %) + dev front (50 %) + designer (50 %) | 8 000 000 |
+| Intégration paiement | Paynote (frais d’intégration) + Stripe setup | 1 000 000 |
+| Blockchain (smart contract + tests) | Forfait développement | 500 000 |
+| Assurance (police annuelle) | Première prime | 500 000 |
+| Matériel (ordinateur, test phone) | Un PC portable + un smartphone Android | 1 000 000 |
+| Frais juridiques (contrats, CGU, marque) | Dépôt OAPI + rédaction | 1 500 000 |
+| **Total ponctuel** | | **12 500 000** |
+
+## Dépenses récurrentes mensuelles
+
+| Poste | Montant mensuel | Total annuel |
+|-------|----------------|--------------|
+| Vercel Pro (20 $) | 12 500 | 150 000 |
+| Supabase Pro (25 $) | 15 600 | 187 200 |
+| Paynote (frais transaction 2 %) | Variable (selon volume) | (estimé 500 000) |
+| Stripe (1,4 % + 200 FCFA) | Variable | (estimé 200 000) |
+| Deepseek API | 10 000 | 120 000 |
+| Envois email (Sendinblue) | 8 000 | 96 000 |
+| Support client (1 ETP) | 200 000 | 2 400 000 |
+| Community manager (1 ETP) | 300 000 | 3 600 000 |
+| Marketing (ads, influenceurs) | 300 000 | 3 600 000 |
+| Hébergement & divers (Sentry, Logtail) | 15 000 | 180 000 |
+| **Total récurrent annuel** | | **~11 033 200** |
+
+## Recettes prévisionnelles
+
+| Source | Hypothèse | Montant annuel |
+|--------|-----------|----------------|
+| Commission artistes (25% puis 15%) | 300 ventes, panier moyen 150 000 FCFA, commission moyenne 20 % = 9 000 000 FCFA | 9 000 000 |
+| Frais de mise en avant (option) | 10 artistes × 20 000 FCFA/mois × 6 mois | 1 200 000 |
+| **Total recettes** | | **10 200 000** |
+
+**Déficit prévisionnel** = (12,5 M + 11,0 M) - 10,2 M = 13,3 M FCFA (à financer).
+
+## Plan de financement
+
+| Source | Montant |
+|--------|---------|
+| Autofinancement (fondateur) | 5 000 000 |
+| Investisseurs (business angels) | 15 000 000 |
+| Subvention (Fonds d’aide aux industries créatives) | 5 000 000 |
+| **Total** | **25 000 000** |
+
+---
+
+# COMPLÉMENT 2 – LIVRABLES FINAUX (DOSSIER COMPLET)
+
+Tous ces documents sont stockés dans le repository GitHub `SANKOFA/docs` et dans Notion.
+
+1. `PRD.md` – Product Requirements Document
+2. `architecture.md` – Architecture technique détaillée
+3. `user-stories-full.md` – Toutes les user stories (P0, P1, P2)
+4. `wireframes/` – Dossier contenant les exports Stitch et Figma (captures)
+5. `test-plan.md` – Stratégie, cas de test, environnements
+6. `launch-plan.md` – Calendrier et actions de lancement
+7. `risk-management-plan.md` – Matrice des risques, fonds de garantie
+8. `budget-financement.xlsx` – Budget prévisionnel et plan de financement
+9. `privacy-policy.md` – Politique de confidentialité
+10. `legal-notices.md` – Mentions légales
+11. `contract-artist-template.md` – Contrat d’adhésion artiste
+12. `contract-curator-template.md` – Contrat de partenariat curateur
+13. `user-guide-artists.md` – Guide pour les artistes
+14. `user-guide-buyers.md` – Guide pour les acheteurs
+15. `roadmap-post-mvp.md` – Plan de maintenance et évolutions
+16. `skills-matrix.md` – Compétences et RACI
+17. `api-documentation.md` – Documentation des endpoints (OpenAPI)
+18. `changelog.md` – Suivi des versions et modifications
+
+---
+
+Ce détail des piliers constitue le **plan d’exécution ultime** pour SANKOFA. Il ne manque plus que la mise en œuvre technique et l’acquisition des premiers utilisateurs. Souhaitez-vous que je priorise les actions sur les 30 premiers jours sous forme de checklist opérationnelle ?
+
+
+# Modèle économique détaillé – SANKOFA
+
+## 1. Vue d’ensemble
+
+SANKOFA est une **marketplace bilatérale** connectant artistes africains et acheteurs (particuliers, collectionneurs, entreprises). Le modèle économique repose sur des **commissions sur les ventes**, des **services optionnels** et des **partenariats**. La stratégie est d’être accessible aux artistes émergents (coût d’entrée nul ou très faible) tout en générant des revenus suffisants pour couvrir les coûts et assurer la rentabilité à moyen terme.
+
+---
+
+## 2. Sources de revenus
+
+| Source | Description | Tarification | Marge brute estimée |
+|--------|-------------|--------------|---------------------|
+| **Commission sur vente (artistique)** | Prélèvement sur le prix de l’œuvre lors de chaque transaction. | 25 % sur la **première vente** de l’artiste, **15 %** sur les suivantes. Commission calculée hors frais de livraison. | 100 % (pas de coût direct) |
+| **Frais de mise en avant** | Option pour les artistes : meilleure visibilité (page d’accueil, newsletter, badge “coup de cœur”). | Forfait mensuel : 20 000 FCFA. Engagement min. 3 mois. | 100 % |
+| **Commission curateur** | Prélèvement sur les ventes générées par une exposition virtuelle (payé par la plateforme, pas par l’artiste). | 5 % du prix de vente (prélevé sur la commission plateforme). | 0 % pour la plateforme (redistribution) |
+| **Frais de livraison (optional)** | Marge sur les frais de transport facturés à l’acheteur. | Frais réels + 10 % de marge. | 10 % |
+| **Service d’assurance premium** | Assurance étendue (vol, casse, retour gratuit). Option proposée à l’acheteur. | 2 % du prix de l’œuvre, plafonné à 10 000 FCFA. | 80 % |
+| **Certificat blockchain (NFT)** | Pour les collectionneurs souhaitant un certificat enrichi (image NFT, transfert de propriété en chaîne). | 50 000 FCFA par œuvre. | 90 % (frais gaz négligeables) |
+| **Partenariats B2B** | Entreprises souhaitant exposer des œuvres dans leurs locaux (location temporaire) ou offrir des œuvres à leurs employés. | Forfait annuel : 500 000 FCFA + commission 10 % sur ventes. | Variable |
+| **Abonnement galerie virtuelle** | Pour les galeristes souhaitant un espace de marque dédié avec analytics avancés. | 100 000 FCFA/mois. | 100 % |
+| **Données agrégées (anonymisées)** | Rapports de marché pour institutions, investisseurs, chercheurs. | Sur devis (ex: 500 000 FCFA/rapport). | 100 % |
+
+---
+
+## 3. Structure de coûts
+
+### Coûts fixes mensuels (estimation – phase de croissance)
+
+| Poste | Montant (FCFA) | Commentaire |
+|-------|----------------|-------------|
+| Hébergement (Vercel Pro + Supabase Pro) | 28 000 | ~45 $/mois |
+| API externes (Paynote, Stripe, Deepseek, Sendinblue) | 50 000 | Variable selon volume |
+| Assurance (police cadre) | 50 000 | Forfait annuel divisé par 12 |
+| Salaires (équipe minimale : PO, lead dev, support) | 1 500 000 | 3 personnes (dont 1 interne, 2 prestations) |
+| Marketing (ads, influenceurs, contenu) | 300 000 | |
+| Frais bancaires et commissions (Paynote/Stripe) | variable | Inclus dans coûts variables |
+| **Total fixe mensuel** | **~1 928 000** | |
+
+### Coûts variables (par transaction)
+
+| Poste | Pourcentage du prix de vente | Exemple pour 150 000 FCFA |
+|-------|-----------------------------|---------------------------|
+| Frais Paynote (Mobile Money) | 1,5 % | 2 250 FCFA |
+| Frais Stripe (carte) | 1,4 % + 200 FCFA | 2 300 FCFA |
+| Coût blockchain (Polygon) | 20 FCFA (fixe) | 20 FCFA |
+| Génération PDF certificat | 5 FCFA | 5 FCFA |
+| Envoi notifications (WhatsApp, email) | 10 FCFA | 10 FCFA |
+| **Total variable** | **~1,5–2,0 %** | **~2 500 FCFA** |
+
+---
+
+## 4. Analyse de rentabilité (scénario à 12 mois)
+
+### Hypothèses de volume (croissance progressive)
+
+| Mois | Commandes/mois | Panier moyen (FCFA) | Commission moyenne* |
+|------|----------------|---------------------|---------------------|
+| 1-3 | 10 | 150 000 | 25 % (premières ventes) |
+| 4-6 | 30 | 150 000 | 20 % (mélange 1ère et suivantes) |
+| 7-9 | 80 | 150 000 | 18 % |
+| 10-12 | 150 | 150 000 | 15 % (artistes établis) |
+
+*Commission moyenne pondérée (25 % pour les nouvelles œuvres, 15 % pour les artistes ayant déjà vendu)
+
+### Calcul des revenus annuels
+
+| Période | Commandes | Commission moyenne | Revenu commission | Autres revenus* | Total |
+|---------|-----------|-------------------|-------------------|----------------|-------|
+| Mois 1-3 | 30 | 25 % | 30 × 150k × 0,25 = 1 125 000 | 100 000 | 1 225 000 |
+| Mois 4-6 | 90 | 20 % | 90 × 150k × 0,20 = 2 700 000 | 300 000 | 3 000 000 |
+| Mois 7-9 | 240 | 18 % | 240 × 150k × 0,18 = 6 480 000 | 600 000 | 7 080 000 |
+| Mois 10-12 | 450 | 15 % | 450 × 150k × 0,15 = 10 125 000 | 900 000 | 11 025 000 |
+| **Total année** | **810** | | **20 430 000** | **1 900 000** | **22 330 000** |
+
+*Autres revenus : mises en avant, assurance premium, NFT, abonnements (estimation basse).
+
+### Coûts annuels
+
+| Catégorie | Montant (FCFA) |
+|-----------|----------------|
+| Coûts fixes (12 mois) | 1 928 000 × 12 = 23 136 000 |
+| Coûts variables (810 commandes × 2 500 FCFA) | 2 025 000 |
+| Coûts de développement (amortis sur 12 mois) | 12 500 000 (cf budget) |
+| **Total coûts** | **37 661 000** |
+
+**Résultat net** = 22 330 000 – 37 661 000 = **-15 331 000 FCFA** (perte la première année).
+
+### Seuil de rentabilité
+
+Le seuil de rentabilité est atteint lorsque le revenu mensuel dépasse les coûts fixes + variables.  
+Coûts fixes mensuels ~1 930 000 FCFA.  
+Marge brute moyenne par commande : prix 150 000 FCFA, commission 18 % = 27 000 FCFA, moins coûts variables 2 500 FCFA = 24 500 FCFA de contribution.
+
+**Seuil** = 1 930 000 / 24 500 ≈ **79 commandes/mois**.
+
+→ Avec un panier moyen de 150 000 FCFA, le seuil de rentabilité est atteint à environ **80 commandes par mois** (soit environ 12 millions de FCFA de GMV mensuel).
+
+---
+
+## 5. Stratégie de pricing et positionnement
+
+### Pour les artistes
+- **Commission dégressive** : incite l’artiste à rester sur la plateforme et à vendre régulièrement.
+- **Aucun frais d’inscription** : barrière d’entrée nulle.
+- **Paiement rapide** (24h après validation acheteur) : facteur de confiance.
+
+### Pour les acheteurs
+- **Paiement fractionné** (3x sans frais) : augmente le pouvoir d’achat.
+- **Frais de livraison transparents** : forfait par zone géographique (ex: 5 000 FCFA Douala, 10 000 FCFA Yaoundé, 25 000 FCFA Abidjan).
+- **Assurance premium optionnelle** : rassure sur les achats de valeur.
+
+### Avantage concurrentiel
+- Commission **15–25 %** inférieure aux galeries physiques (40–50 %) et comparable aux meilleures marketplaces (Afrikanizm 15 %, Latitudes 30 %).
+- Valeur ajoutée : certificat blockchain, logistique dédiée, curation locale.
+
+---
+
+## 6. Projection à 3 ans
+
+| Année | Commandes/an | GMV (M FCFA) | Revenus (M FCFA) | Coûts (M FCFA) | Résultat net (M FCFA) |
+|-------|--------------|--------------|------------------|----------------|----------------------|
+| 1 (lancement) | 810 | 121,5 | 22,3 | 37,7 | -15,3 |
+| 2 (croissance) | 3 000 | 450 | 85,0 | 70,0 | +15,0 |
+| 3 (expansion) | 8 000 | 1 200 | 220,0 | 150,0 | +70,0 |
+
+**Hypothèses année 2** : commission moyenne 16 %, coûts fixes maîtrisés (1 500 000 FCFA/mois), développement internalisé.
+
+---
+
+## 7. Stratégie de financement et levée de fonds
+
+| Phase | Besoin (FCFA) | Source | Utilisation |
+|-------|---------------|--------|--------------|
+| Pré-MVP (3 mois) | 15 000 000 | Autofinancement + business angels | Développement, légal, premiers artistes |
+| Post-MVP (6 mois) | 30 000 000 | Subventions (AFD, OIF), investisseurs impact | Marketing, expansion Côte d’Ivoire, hub logistique |
+| Série A (18 mois) | 100 000 000 | Fonds d’investissement spécialisés | Scaling panafricain, application mobile, IA |
+
+---
+
+## 8. Indicateurs clés de suivi économique
+
+| Indicateur | Définition | Cible à 12 mois |
+|------------|------------|-----------------|
+| GMV mensuel | Volume brut des ventes | 20 M FCFA |
+| Taux de commission moyen | Revenu commission / GMV | 18 % |
+| Marge brute plateforme | Revenus – coûts variables / Revenus | > 80 % |
+| Coût d’acquisition client (CAC) | Dépenses marketing / nouveaux artistes actifs | < 30 000 FCFA |
+| Lifetime value (LTV) | Marge brute générée par un artiste sur 12 mois | > 200 000 FCFA |
+| Taux de pénétration Mobile Money | % des transactions via Mobile Money vs carte | > 90 % |
+
+---
+
+## 9. Résumé exécutif
+
+Le modèle économique de SANKOFA est **viable à moyen terme** (rentabilité atteinte vers **80 commandes/mois**). Il repose sur une commission dégressive, des services optionnels et une maîtrise rigoureuse des coûts variables. La première année est déficitaire (investissement), mais la croissance du GMV permet d’atteindre l’équilibre en année 2. Les marges élevées sur les services additionnels (certificat blockchain, mise en avant) accélèrent la rentabilité. Le financement initial nécessaire est de **15–30 M FCFA** pour le lancement.
+
+---
+
+Souhaitez-vous que je développe un **business plan financier** détaillé (compte de résultat prévisionnel, bilan, flux de trésorerie) ou que je simule différents scénarios (panier moyen variable, commission fixe vs dégressive) ?

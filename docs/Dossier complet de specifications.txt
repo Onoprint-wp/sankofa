@@ -1,0 +1,214 @@
+# DOSSIER COMPLET DE SPÉCIFICATIONS – SANKOFA  
+*Version intégrale prenant en compte le cahier des charges, l’architecture, le design, l’économie et la roadmap*
+
+---
+
+## Table des matières
+
+1. [Synthèse exécutive et note conceptuelle](#1-synthèse-exécutive-et-note-conceptuelle)
+2. [Cahier des charges fonctionnel](#2-cahier-des-charges-fonctionnel)
+3. [Cahier des charges technique](#3-cahier-des-charges-technique)
+4. [Design system](#4-design-system)
+5. [Modèle économique et business plan](#5-modèle-économique-et-business-plan)
+6. [Piliers fondamentaux et écosystème](#6-piliers-fondamentaux-et-écosystème)
+7. [Livrables et documents annexes](#7-livrables-et-documents-annexes)
+8. [Roadmap et plan d’action](#8-roadmap-et-plan-daction)
+
+---
+
+## 1. Synthèse exécutive et note conceptuelle
+
+**SANKOFA** est une marketplace panafricaine de vente et location d’œuvres d’art originales, avec paiement sécurisé par Mobile Money, certificat d’authenticité blockchain et logistique intégrée.
+
+- **Problème** : artistes africains émergents sans visibilité ni canaux de vente ; acheteurs méfiants (authenticité, livraison, paiement).
+- **Solution** : plateforme mobile‑first, commission dégressive, séquestre des fonds, certification Polygon, hub logistique, Académie SANKOFA.
+- **Innovation** : location avec option d’achat (« Artothèque augmentée ») – recommandée et validée.
+- **Modèle** : commission (25 % 1re vente, 15 % suivantes) + services optionnels. Seuil rentabilité ~80 commandes/mois.
+- **Financement** : besoin initial 30 M FCFA, rentabilité année 2, bénéfice année 3.
+- **Équipe** : Styve (fondateur), Jizi (conseiller), à recruter (lead dev, dev front, CM, designer, juriste, comptable).
+
+---
+
+## 2. Cahier des charges fonctionnel
+
+### 2.1. Modules utilisateurs (MVP)
+
+- **Artistes** : inscription avec vérification (CNI + selfie), dépôt d’œuvres (photos, description, prix, location optionnelle), tableau de bord, expédition, réception des paiements.
+- **Acheteurs** : inscription simple, navigation/filtres, panier, paiement séquestre (Mobile Money / carte), suivi livraison, délai de rétractation 48h, avis.
+- **Admins** : validation artistes/œuvres, gestion litiges, KPIs.
+- **Curateurs** : accès vivier, création expositions virtuelles, commission 5%.
+
+### 2.2. Fonctionnalités innovantes
+
+- **Location avec option d’achat** (v2) : loyer mensuel (5‑10 % du prix), option d’achat déduisant les loyers, contrat numérique, assurance incluse.
+- **Certificat blockchain** : PDF + hash sur Polygon, QR code, page de vérification.
+- **Académie SANKOFA** : modules obligatoires (photographie, emballage, description) pour les artistes.
+
+### 2.3. Priorités (P0)
+
+- Inscriptions, dépôt œuvres, validation admin, catalogue, panier, paiement séquestre, expédition tracking, validation réception, certificat PDF, back-office basique.
+
+---
+
+## 3. Cahier des charges technique
+
+### 3.1. Stack
+
+| Couche | Technologie |
+|--------|-------------|
+| Frontend | Next.js 14 (TypeScript, Tailwind CSS) – PWA |
+| UI prototyping | Google Stitch (MCP) + Figma |
+| Backend / API | Next.js API routes + Supabase Edge Functions |
+| Base de données | Supabase (PostgreSQL, RLS, storage, realtime) |
+| Paiement | Paynote (Mobile Money) + Stripe (cartes) |
+| Blockchain | Polygon (via Thirdweb ou ethers.js) |
+| Logistique | API partenaire (Creseada, DHL) + hub central |
+| IA | Deepseek (chatbot, génération descriptions) |
+| Hébergement | Vercel (Pro plan) |
+| CI/CD | GitHub Actions |
+| Monitoring | Sentry + Logtail |
+
+### 3.2. Modèle de données (extrait)
+
+```sql
+users, artists, artworks, orders, escrow_transactions, certificates, litigations, rentals, rental_payments...
+```
+
+### 3.3. Sécurité et conformité
+
+- Chiffrement TLS 1.3, variables d’environnement Vercel, RLS Supabase, 2FA admin.
+- Respect loi camerounaise n°2010/012 et RGPD.
+- Politique de confidentialité, CGU, contrats artistes/curateurs.
+
+---
+
+## 4. Design system
+
+### 4.1. Principes
+
+Authenticité, élégance accessible, fluidité mobile‑first, confiance rassurante.
+
+### 4.2. Couleurs
+
+| Usage | Hex |
+|-------|-----|
+| Primaire (boutons) | `#C75C3A` (terre cuite) |
+| Secondaire (fonds) | `#E8D9C6` (sable) |
+| Texte principal | `#1E1B1A` (nuit noire) |
+| Accent (badges) | `#D9A13B` (or ocre) |
+| Succès | `#2A7A3E` |
+| Erreur | `#B33C2E` |
+
+### 4.3. Typographie
+
+- Titres : Playfair Display
+- Corps : Inter
+- Échelle : 0,75rem à 2,5rem, responsive.
+
+### 4.4. Composants clés
+
+Boutons (taille 44px min), cartes œuvre (image 1:1), formulaires (bordure arrondie 8px), modale de paiement, tableau de bord artiste, certificat PDF.
+
+### 4.5. Accessibilité WCAG 2.1 AA
+
+Contrastes, focus visible, text redimensionnable, cibles tactiles ≥44px.
+
+---
+
+## 5. Modèle économique et business plan
+
+### 5.1. Sources de revenus
+
+- Commission ventes : 25 % (1re), 15 % (suiv.)
+- Mise en avant artiste : 20 000 FCFA/mois
+- Location (commission 15 % sur loyers, 10 % sur vente finale)
+- Certificat NFT premium : 50 000 FCFA
+- Abonnement galerie virtuelle B2B : 100 000 FCFA/mois
+- Frais livraison (marge 10 %), assurance premium (2 %), rapports marché (500 000 FCFA)
+
+### 5.2. Projections (M FCFA)
+
+| Année | Revenus | Charges | Résultat net |
+|-------|---------|---------|---------------|
+| 1 | 26,3 | 64,5 | –38,7 |
+| 2 | 91,6 | 90,8 | +0,1 |
+| 3 | 234,0 | 127,6 | +79,2 |
+
+**Seuil rentabilité** : ~80 commandes/mois (panier moyen 150 000 FCFA).
+
+### 5.3. Besoin financement
+
+30 M FCFA (dont 5 M autofinancement, 20 M investisseurs, 5 M subventions).
+
+---
+
+## 6. Piliers fondamentaux et écosystème
+
+Les 8 piliers (artistes, acheteurs, galeristes, institutions, investisseurs, partenaires tech, logistique, juristes) ont chacun des besoins vitaux, critères d’éligibilité et mesures opérationnelles détaillés dans les documents annexes.
+
+**Résumé des besoins vitaux** :
+
+- Artistes : être payé juste et rapidement.
+- Acheteurs : authenticité et conformité.
+- Galeristes : découvrir des talents.
+- Institutions : rayonnement culturel + contrôle flux illicites.
+- Investisseurs : ROI mesurable.
+- Partenaires tech : paiements fiables.
+- Logistique : volumes prévisibles.
+- Juristes : cadre légal clair.
+
+---
+
+## 7. Livrables et documents annexes
+
+Tous les documents suivants sont disponibles dans le repository GitHub `SANKOFA/docs` ou sur Notion.
+
+| # | Document | Contenu |
+|---|----------|---------|
+| 1 | `PRD.md` | Product Requirements Document complet |
+| 2 | `architecture.md` | Architecture technique détaillée |
+| 3 | `user-stories-full.md` | Toutes les user stories (P0, P1, P2) |
+| 4 | `wireframes/` | Maquettes Stitch/Figma |
+| 5 | `test-plan.md` | Stratégie, cas de test, environnements |
+| 6 | `launch-plan.md` | Calendrier et actions de lancement |
+| 7 | `risk-management-plan.md` | Matrice des risques, fonds de garantie |
+| 8 | `budget-financement.xlsx` | Budget prévisionnel et plan de financement |
+| 9 | `privacy-policy.md` | Politique de confidentialité |
+| 10 | `legal-notices.md` | Mentions légales |
+| 11 | `contract-artist-template.md` | Contrat d’adhésion artiste |
+| 12 | `contract-curator-template.md` | Contrat de partenariat curateur |
+| 13 | `user-guide-artists.md` | Guide pour les artistes |
+| 14 | `user-guide-buyers.md` | Guide pour les acheteurs |
+| 15 | `roadmap-post-mvp.md` | Plan de maintenance et évolutions |
+| 16 | `skills-matrix.md` | Compétences et RACI |
+| 17 | `design-system.md` | Charte graphique, composants |
+| 18 | `api-documentation.md` | Documentation OpenAPI des endpoints |
+
+---
+
+## 8. Roadmap et plan d’action
+
+### Phase 0 – Préparation (1 mois)
+- Rédaction documents légaux, recrutement équipe, maquettes, recrutement 10 artistes ambassadeurs.
+
+### Phase 1 – Développement MVP (2 mois)
+- Setup Next.js + Supabase, auth, dépôt œuvres, catalogue, panier, paiement Paynote (séquestre), expédition simple, certificat PDF (blockchain testnet), back-office admin.
+
+### Phase 2 – Tests & recette (1 mois)
+- Tests unitaires, intégration, E2E, recette avec artistes/acheteurs réels, audit sécurité, corrections bugs bloquants.
+
+### Phase 3 – Lancement (J0)
+- Mise en production, campagne marketing, vernissage virtuel, activation ambassadeurs.
+
+### Phase 4 – Post‑lancement (3‑6 mois)
+- Analyse KPIs, itérations, mise en place hub logistique (Douala), extension Côte d’Ivoire.
+
+### Phase 5 – V2 (6‑12 mois)
+- Location avec option d’achat (Artothèque augmentée), réalité augmentée sociale (Prisme), application mobile native.
+
+---
+
+Ce dossier constitue le **référentiel unique** pour le développement et le lancement de SANKOFA. Toute modification doit être documentée et validée par le chef de projet.
+
+*Document établi le 15 juin 2026 – Version finale validée*  
+**Prochaines étapes** : finaliser le recrutement du lead développeur et lancer la phase 0.

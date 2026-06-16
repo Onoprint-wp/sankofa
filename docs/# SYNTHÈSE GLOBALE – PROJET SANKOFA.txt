@@ -1,0 +1,969 @@
+# SYNTHÈSE GLOBALE – PROJET SANKOFA  
+*Plateforme de vente d’art africain en ligne (focus Cameroun puis expansion)*
+
+## 1. Genèse et vision du projet
+
+**Contexte** : De nombreux artistes plasticiens africains, et particulièrement camerounais, peinent à vendre leurs œuvres faute de galeries accessibles et de visibilité en ligne. Le marché de l’art contemporain africain est en forte croissance (+42,6 % en 2025 sur le segment enchères) mais la circulation intra‑africaine reste faible (30 % des ventes des galeries africaines seulement).
+
+**Vision** : Créer une plateforme de vente en ligne (marketplace) qui résout les problèmes de valorisation culturelle, d’accès au marché, de confiance et de logistique. Le nom proposé est **SANKOFA**, concept philosophique et plastique qui réfléchit sur la mémoire, la pensée et la puissance symbolique du monde noir.
+
+**Objectifs** :  
+- Rendre l’art africain visible et accessible aux acheteurs locaux et internationaux.  
+- Être rentable pour la plateforme, accessible pour les artistes émergents, sécurisée pour les acheteurs, ancrée dans la culture africaine et techniquement simple.
+
+---
+
+## 2. Analyse concurrentielle
+
+**Concurrents identifiés** : Pavillon 54, Afrikanizm, Latitudes Online, Art Market Africa, Art Place Africa, Artgidi, Vantaart, Art Kalen, Iru Art Hub.
+
+**Forces / faiblesses principales** :
+
+| Concurrent | Force | Faiblesse |
+|------------|-------|------------|
+| Pavillon 54 | Positionnement haut de gamme, curation prestigieuse | Élitiste, difficile pour artistes émergents |
+| Afrikanizm | Commissions basses, pas d’exclusivité | Présence limitée aux pays lusophones |
+| Latitudes Online | Audience mondiale (208 pays), 1700+ artistes | Concurrence intense, barrière linguistique (anglais) |
+| Vantaart (Cameroun) | Galerie 3D, local | Jeune, technologie complexe |
+
+**Opportunité** : Aucune plateforme ne combine **accessibilité financière + accompagnement pédagogique + logistique adaptée + ancrage culturel fort**. SANKOFA peut se positionner comme **plateforme de croissance** pour artistes émergents.
+
+---
+
+## 3. Défis locaux (Cameroun et Afrique de l’Ouest)
+
+| Catégorie | Défis |
+|-----------|-------|
+| **Marché local** | Marché embryonnaire, dichotomie valeur (visible à l’international peu au national), faible nombre de galeries |
+| **Infrastructure technologique** | Connectivité variable, fracture numérique, nécessité d’une approche mobile‑first |
+| **Logistique** | Coûts d’expédition élevés, risques de détérioration, assurance complexe, absence de transporteurs spécialisés |
+| **Confiance & paiements** | Réflexe Mobile Money (70 % des consommateurs camerounais), besoin de séquestre, cadre légal récent (loi e‑commerce 2026) |
+| **IA** | Risque de dévaluation des œuvres, appropriation culturelle (data colonialism), mais opportunités pour certification, recommandation, AR |
+
+---
+
+## 4. Intelligence artificielle : opportunités et risques
+
+**Risques** :  
+- Saturation du marché par des images générées par IA.  
+- Entraînement non consenti sur les œuvres africaines.  
+- Failles juridiques (absence de protection).
+
+**Opportunités** :  
+- Utiliser l’IA pour la **curation émotionnelle** (recommandation par humeur).  
+- Outils d’aide à la tarification et à la rédaction de fiches.  
+- Réalité augmentée pour visualiser l’œuvre chez soi.  
+- Certification blockchain + IA (traçabilité).  
+- **Positionnement décolonial** : proposer des IA formées localement, avec consentement des artistes.
+
+**Recommandation** : Démarrer sans IA sophistiquée, intégrer progressivement (recommandation simple, puis AR, puis modèle local).
+
+---
+
+## 5. Questions stratégiques (check‑list pour le lancement)
+
+Nous avons défini une série de **bonnes questions** à se poser dans 8 dimensions : marché, modèle économique, technologie, logistique, confiance, juridique, communauté, IA. La **question mère** :
+
+> *« Comment créer une plateforme qui soit rentable pour nous, accessible pour les artistes émergents, sécurisée pour les acheteurs, et fièrement ancrée dans la culture africaine, tout en restant techniquement simple à prendre en main ? »*
+
+**Réponse étayée** (avec preuves scientifiques / études de cas) :  
+- **Rentabilité** : Commission à 25 % sur première vente, 15 % sur suivantes (inspiré d’études sur Patty Morgan et Sunday Art Hub).  
+- **Accessibilité** : Mobile‑first (12,84 M internautes vs 24,86 M comptes Mobile Money au Cameroun).  
+- **Sécurité** : Paiement séquestre + blockchain (passeport numérique).  
+- **Ancrage culturel** : Expositions virtuelles + storytelling, approche décoloniale de l’IA.  
+- **Simplicité technique** : MVP (Produit Minimum Viable) avec React / Node.js, API Mobile Money.
+
+---
+
+## 6. Ancrage culturel et défis institutionnels par pays
+
+### 6.1. Hétérogénéité culturelle
+- L’Afrique n’est pas une culture unique. Recommandation : **comités éditoriaux régionaux** (Cameroun, Nigeria, Côte d’Ivoire, Sénégal, Afrique du Sud, Kenya).  
+- Multilinguisme stratégique : français, anglais, puis portugais, swahili.
+
+### 6.2. Défis institutionnels majeurs
+
+| Défi | Exemple | Impact |
+|------|---------|--------|
+| Droits de douane élevés | 20‑30 % (Nigeria, CEMAC) | Rend l’art intra‑africain plus cher que l’art exporté en Europe puis réimporté |
+| Législations patrimoniales obsolètes | Algérie (loi 1962), Zimbabwe | Blocage ou lourdeurs administratives |
+| Absence de certification fiable | Manque de sources écrites, cadres légaux en retard | Opportunité blockchain |
+| Bureaucratie douanière | Œuvres bloquées « en transit » (exemple Peace, Tanzanie – Johannesburg) | Nécessité de transitaires spécialisés |
+| Ratification inégale des conventions | UNESCO 1970 (35 pays), UNIDROIT 1995 (9 pays) | Fragmentation des recours juridiques |
+
+### 6.3. Cas concrets : Nigeria, Côte d’Ivoire, Sénégal
+
+| Pays | Exportation | Droits/Taxes | Spécificités |
+|------|-------------|--------------|---------------|
+| **Nigeria** | Certificat NCMM obligatoire + redevance 10 % de la valeur | Droit import 20 % + TVA 7,5 % | Copyright Act 2022, ratifié UNESCO & UNIDROIT |
+| **Côte d’Ivoire** | Autorisation préalable (loi 87‑806) | Tarif UEMOA + RS + PCS + TVA 18 % | BURIDA, ratification UNESCO mais UNIDROIT non finalisée |
+| **Sénégal** | Pas de ratification UNIDROIT (signé seulement) | Tarif UEMOA + TVA 18 % | Loi droits d’auteur 2008‑09, scène artistique dynamique (Dakar) |
+
+### 6.4. Levier : ZLECAf (AfCFTA)
+- Marché unique de 1,3 milliard d’habitants, PIB 3 000 Mds $.  
+- Suppression progressive des droits sur 90 % des biens d’ici 10 ans.  
+- Phase 2 (PI, contrefaçon) encore en discussion.  
+- **Stratégie** : Anticiper la baisse des droits, établir des hubs logistiques à Lagos, Abidjan, Nairobi, Johannesburg.
+
+---
+
+## 7. Logistique pratique – focus Côte d’Ivoire
+
+**Modèle recommandé** : Hub centralisé (inspiré d’ArtNativ au Nigeria).
+
+**Workflow** :  
+1. Artiste envoie l’œuvre au hub à Abidjan (emballage standardisé).  
+2. Hub inspecte, reconditionne aux couleurs SANKOFA, émet certificat.  
+3. Expédition finale par partenaires logistiques.  
+4. Assurances et tracking.
+
+**Partenaires identifiés** :  
+- Creseada International (Nigeria – Abidjan) – expérience art.  
+- Eaglenet Logistic Services (Nigeria).  
+- AfriArtSpace (annuaire panafricain).  
+- DHL / FedEx / UPS (international).  
+- À Fleur de Route (Sénégal) – marchandises sensibles.  
+- STMS Logistics (Sénégal – Côte d’Ivoire) – transport terrestre.
+
+**Coûts indicatifs** :  
+- Caisse sur mesure : 15 000 – 150 000 FCFA.  
+- Assurance : 0,1‑0,5 % pour collections, 1‑2 % pour envois ponctuels.  
+- Douane : droits import + redevance NCMM (Nigeria).
+
+**Défis** :  
+- Lenteurs et opacité douanière.  
+- Infrastroutes dégradées.  
+- Manque de traçabilité.  
+- Absence de transporteurs spécialisés → **la plateforme doit devenir l’expert logistique**.
+
+---
+
+## 8. Écosystème et workflows des piliers fondamentaux
+
+### 8.1. Les 8 piliers et leurs besoins vitaux
+
+| Pilier | Besoin vital |
+|--------|--------------|
+| Artistes | Être payé juste et rapidement |
+| Acheteurs | Authenticité et conformité |
+| Galeristes / curateurs | Découvrir des talents et valoriser leur expertise |
+| Institutions / États | Rayonnement culturel + contrôle des flux illicites |
+| Investisseurs | ROI mesurable et prévisible |
+| Partenaires technologiques | Paiements fiables + certification infalsifiable |
+| Partenaires logistiques | Volumes prévisibles et emballage standard |
+| Experts juridiques & comptables | Cadre légal clair + rémunération à l’acte |
+
+### 8.2. Workflow global de la plateforme
+
+> *Artiste dépose une œuvre → Curation (humaine + IA) → Publication → Acheteur paie (séquestre) → Notification à l’artiste → Envoi au hub → Inspection → Réexpédition → Livraison → Validation acheteur → Déblocage paiement → Commissions distribuées (plateforme, curateur, transporteur) → Statistiques mises à jour → Feedback.*
+
+### 8.3. Mesures concrètes pour répondre aux besoins vitaux (extrait)
+
+**Artistes** :  
+- Paiement séquestre + déblocage 48h.  
+- Commission claire (20 % puis 15 %).  
+- Paiement Mobile Money instantané.  
+- Seuil de retrait bas (10 000 FCFA).
+
+**Acheteurs** :  
+- Certificat blockchain.  
+- Délai de rétractation 48h.  
+- Assurance transport incluse.  
+- Avis vérifiés.
+
+**Galeristes** :  
+- Accès à un vivier « non publiés ».  
+- Commission sur ventes générées (3‑5 %).  
+- Outils d’évaluation assistée par IA.
+
+**Institutions** :  
+- Label « Soutenu par le Ministère ».  
+- Interface douanière simplifiée.  
+- Rapport annuel du marché.
+
+**Investisseurs** :  
+- Dashboard KPIs temps réel.  
+- Comité de suivi trimestriel.  
+- Plan de liquidité / sortie.
+
+**Partenaires tech** :  
+- Intégration API Mobile Money via agrégateur (Paynote, MMGate, Campay).  
+- Blockchain légère (Polygon, Stellar).  
+- SLA 99,5 %.
+
+**Logistique** :  
+- Standardisation des emballages (kit fourni).  
+- Prévision de volumes hebdomadaire.  
+- Hubs dans grandes villes.  
+- Notation des artistes par transporteurs.
+
+**Juridique** :  
+- Contrats types validés.  
+- Rémunération à la mission ou abonnement.  
+- Veille légale externalisée.  
+- Module de gestion de litiges.
+
+---
+
+## 9. Système de séquestre (escrow) avec Mobile Money
+
+**Workflow technique** :  
+1. Acheteur paie via Orange/MTN MoMo → fonds versés sur portefeuille séquestre régulé.  
+2. Artiste valide la commande.  
+3. Expédition et livraison.  
+4. Acheteur dispose de 48h pour inspecter et valider.  
+5. Déblocage automatique (ou après validation) → virement instantané sur compte Mobile Money de l’artiste, commission plateforme prélevée.
+
+**Choix techniques** :  
+- **Option A (agrégateur)** : rapide (2‑12 semaines), frais 1‑3 %.  
+- **Option B (direct opérateurs)** : plus long (2‑4 mois), moins de frais.
+
+**Prérequis légaux** :  
+- Immatriculation de l’entreprise.  
+- Contrat avec agrégateur / opérateurs.  
+- Compte bancaire professionnel.  
+- Conformité AML/CFT (lutte anti‑blanchiment).
+
+**KPIs** : Taux de conversion, taux de succès des paiements, taux de litiges (<5 % objectif), montant moyen des fonds en séquestre.
+
+**Feuille de route** :  
+- J‑60 : audit juridique et immatriculation.  
+- J30 : sélection agrégateur.  
+- J45 : intégration sandbox.  
+- J90 : tests utilisateurs réels.
+
+---
+
+## 10. Les 10 points oubliés (détail opérationnel)
+
+| # | Thème | Actions clés | Priorité |
+|---|-------|--------------|----------|
+| 1 | Acquisition / Growth | Ambassadeurs artistes, campagnes Instagram, WhatsApp Business, écoles d’art, événement lancement | 🔴 10/10 |
+| 2 | Modération & litiges | Notation double, processus litige (10 jours max), fonds de garantie (1 %), charte de confiance, médiateur externe | 🔴 10/10 |
+| 3 | Propriété intellectuelle | Filigrane visible + invisible, clause CGU, dépôt optionnel (société de gestion), scan anti‑plagiat, signalement simplifié | 🟠 9/10 |
+| 4 | Stratégie de prix | Étude prix psychologique (fourchette 50‑150 kFCFA), segmentation (Découverte, Collectionneur, Investissement), paiement fractionné obligatoire, test A/B | 🟠 9/10 |
+| 5 | Support client | WhatsApp Business (réponse < 2h), centre d’aide, support téléphonique premium, communauté fermée | 🟠 8/10 |
+| 6 | Formation continue | Modules obligatoires (photo, description, emballage), certification, webinaires | 🟠 8/10 |
+| 7 | Fiscalité locale | Retenue à la source, TVA, partenariat comptable, attestation annuelle de revenus | 🟠 8/10 |
+| 8 | RSE / Impact | Fonds SANKOFA (1 %), emballage éco‑responsable, badge “Éco‑art”, programme artistes femmes | 🟢 7/10 |
+| 9 | Scalabilité / sécurité | Hébergement cloud (AWS Afrique du Sud), sauvegardes quotidiennes, tests pénétration, DPO, conformité RGPD / loi camerounaise | 🔴 9/10 |
+| 10 | KPIs d’impact | Taux première vente, rétention artistes, NPS, diversité géographique, temps d’écoulement, primo‑accédants, parité, impact formation | 🟢 7/10 |
+
+---
+
+## 11. Conclusion stratégique
+
+Le projet SANKOFA est ambitieux mais solidement fondé sur une analyse rigoureuse du marché, des concurrents, des défis locaux et institutionnels, ainsi que sur une feuille de route opérationnelle détaillée. La plateforme se distingue par :
+
+- **Un ancrage culturel authentique** (concept SANKOFA, comités locaux, multilinguisme).  
+- **Un modèle économique accessible** (commissions dégressives, paiement fractionné, séquestre Mobile Money).  
+- **Une approche logistique innovante** (hub centralisé, partenaires spécialisés, assurance intégrée).  
+- **Une gouvernance de la confiance** (blockchain, médiation, fonds de garantie).  
+- **Une stratégie d’expansion progressive** (Cameroun → Côte d’Ivoire → Nigeria → Sénégal → autres pays, en anticipant la ZLECAf).
+
+La prochaine étape opérationnelle consiste à :  
+1. Finaliser l’étude de prix psychologique (enquête terrain).  
+2. Sélectionner l’agrégateur de paiement et intégrer l’API Mobile Money.  
+3. Recruter les premiers artistes ambassadeurs.  
+4. Produire les modules de formation obligatoires.  
+5. Lancer un MVP (produit minimum viable) dans les 90 jours.
+
+---
+
+*Document de synthèse réalisé le 15 juin 2026, à l’issue d’une série d’échanges entre le porteur du projet (Styve/NOIR) et le conseiller stratégique (Jizi).*
+
+# CAHIER DES CHARGES – PROJET SANKOFA  
+*Plateforme de vente d’art africain en ligne (MVP puis expansion panafricaine)*
+
+---
+
+## 1. Présentation générale
+
+### 1.1. Contexte et objectifs stratégiques
+Le projet **SANKOFA** vise à créer une marketplace dédiée à la vente d’œuvres d’art contemporain africain, avec une attention particulière aux artistes émergents du Cameroun et d’Afrique de l’Ouest. La plateforme résout les problèmes de visibilité, de confiance, de logistique et de valorisation culturelle.
+
+**Objectifs clés :**
+- Rendre accessible la vente d’art en ligne aux artistes et aux acheteurs locaux.
+- Offrir des outils de certification, de paiement sécurisé et de livraison fiable.
+- Valoriser la culture africaine et les démarches artistiques comme *SANKOFA*.
+- Être rentable via une commission sur les ventes et des services additionnels.
+
+### 1.2. Périmètre du MVP (produit minimum viable)
+- **Cible géographique** : Cameroun (Douala, Yaoundé) en phase 1 ; puis Côte d’Ivoire, Sénégal, Nigeria.
+- **Utilisateurs** : Artistes plasticiens, acheteurs (particuliers, entreprises), curateurs partenaires, administrateurs plateforme.
+- **Fonctionnalités de base** :
+  - Inscription et profils (artistes, acheteurs).
+  - Dépôt et publication d’œuvres (photos, description, prix).
+  - Recherche et filtres (style, pays, prix, thème).
+  - Panier, paiement par Mobile Money (Orange Money, MTN MoMo) avec séquestre.
+  - Gestion des commandes et suivi de livraison.
+  - Certificat d’authenticité numérique (blockchain légère).
+  - Espace administrateur pour modération et statistiques.
+
+### 1.3. Feuille de route prévisionnelle
+| Phase | Durée | Livrables |
+|-------|-------|------------|
+| **Conception & études** | 1 mois | Spécifications fonctionnelles, maquettes, choix techniques |
+| **Développement MVP** | 3 mois | Plateforme opérationnelle (web + mobile responsive) |
+| **Tests & recettes** | 1 mois | Validation utilisateurs, corrections de sécurité |
+| **Lancement (Cameroun)** | 1 mois | Accompagnement des premiers artistes, campagne pilote |
+| **Extension (Côte d’Ivoire)** | 3 mois après lancement | Adaptation douane, partenaires logistiques |
+
+---
+
+## 2. Spécifications fonctionnelles détaillées
+
+### 2.1. Modules utilisateurs
+
+#### 2.1.1. Artistes
+- Inscription avec vérification d’identité (photo CNI + selfie avec une œuvre).
+- Profil public : biographie, galerie, exposition virtuelle.
+- Dépôt d’œuvre : upload de 3 à 5 photos HD (max 5 Mo chacune), vidéo optionnelle, description, histoire, matériaux, dimensions, prix.
+- Curation interne : validation manuelle par l’équipe SANKOFA (respect des normes éditoriales).
+- Tableau de bord : statistiques (vues, ventes, avis), gestion des commandes.
+- Messagerie sécurisée avec acheteurs.
+- Virement automatique des gains vers Mobile Money (seuil minimum 10 000 FCFA).
+
+#### 2.1.2. Acheteurs
+- Inscription simple (email, téléphone).
+- Navigation par catégories, recherche, filtres (prix, pays, style).
+- Consultation d’une œuvre : zoom, vidéo d’artiste, certificat d’authenticité visible (après achat).
+- Panier et paiement sécurisé via Mobile Money.
+- Suivi de commande (statuts : paiement reçu, expédié, livré, validé).
+- Délai de rétractation / inspection : 48h après réception pour signaler un problème.
+- Évaluation des artistes (étoiles et commentaires).
+
+#### 2.1.3. Curateurs / Galeristes partenaires
+- Profil spécifique avec accès à un « back-office curation ».
+- Visionnage des artistes émergents en attente de publication.
+- Création de collections thématiques (expositions virtuelles).
+- Partage de collections sur réseaux sociaux, suivi des ventes générées.
+- Commission automatique (5% des ventes issues de sa curation).
+
+#### 2.1.4. Administrateur plateforme
+- Gestion des utilisateurs (validation, suspension, suppression).
+- Modération des œuvres (publication, refus, demande de modifications).
+- Gestion des litiges (interface dédiée avec échanges, preuves, arbitrage).
+- Tableau de bord global : KPIs (GMV, nombre de transactions, artistes actifs, etc.).
+- Configuration des frais de commission, des frais de livraison, des paramètres de paiement.
+
+### 2.2. Module de paiement et séquestre (escrow)
+- Intégration avec agrégateur de paiement (Paynote, MMGate ou Campay) pour supporter Orange Money, MTN MoMo, et à terme Wave.
+- Workflow :
+  1. L’acheteur initie le paiement → les fonds sont bloqués sur un compte séquestre technique.
+  2. L’artiste est notifié, confirme la commande, expédie l’œuvre.
+  3. L’acheteur valide la réception (ou silence après 48h) → fonds débloqués.
+  4. Virement automatique du montant net (prix – commission plateforme) vers le Mobile Money de l’artiste.
+  5. Prélèvement automatique des frais de livraison et assurance.
+- Journal des transactions horodaté, exportable pour la comptabilité.
+
+### 2.3. Module logistique
+- Guide d’emballage standardisé (PDF, vidéo) à disposition des artistes.
+- Génération d’étiquette d’expédition avec code de suivi.
+- Partenariat avec transporteurs (intégration API si disponible, sinon processus manuel avec confirmation en ligne).
+- Assurance transport incluse dans les frais de livraison (police cadre négociée).
+- Points relais dans les grandes villes (Douala, Yaoundé, Abidjan, Dakar) pour dépôt des œuvres.
+
+### 2.4. Module de certification et authentification
+- À la validation de la commande par l’acheteur, génération d’un certificat d’authenticité numérique :
+  - Métadonnées : nom de l’œuvre, artiste, dimensions, matériaux, date de création.
+  - Empreinte unique (hash) enregistrée sur une blockchain légère (Polygon ou Stellar).
+  - QR code téléchargeable par l’acheteur.
+- Pour les œuvres de grande valeur (> 500 000 FCFA), possibilité de faire appel à un expert externe (vérification vidéo).
+
+### 2.5. Module de relations clients
+- Centre d’aide en ligne (FAQ, tutoriels vidéo) en français et anglais.
+- Chat WhatsApp Business (temps de réponse garanti < 2h, 9h-18h).
+- Système de tickets pour les litiges (email ou formulaire web).
+- Pour les collectionneurs premium (achat total > 500 000 FCFA) : support téléphonique dédié.
+
+### 2.6. Module de formation (Académie SANKOFA)
+- Parcours obligatoire pour les artistes avant la première publication :
+  - Module 1 : Photographie d’œuvre (vidéo 10 min + checklist).
+  - Module 2 : Rédiger une description qui vend (modèle).
+  - Module 3 : Emballage professionnel (tutoriel).
+- Modules optionnels : marketing personnel, droit d’auteur.
+- Certification délivrée à l’issue. Les artistes certifiés bénéficient d’un badge sur leur profil.
+
+---
+
+## 3. Spécifications techniques
+
+### 3.1. Architecture
+- **Type** : Application web PWA (Progressive Web App) – mobile-first.
+- **Backend** : Node.js + Express (ou Django pour une plus grande robustesse).
+- **Base de données** : PostgreSQL (relationnelle) + Redis pour cache.
+- **Hébergement** : Cloud (AWS zone Afrique du Sud ou Europe – Francfort) avec CDN.
+- **Stockage des médias** : Amazon S3 (ou équivalent) avec optimisation automatique des images.
+
+### 3.2. Sécurité et conformité
+- Chiffrement HTTPS/TLS 1.3.
+- Hashage des mots de passe (bcrypt).
+- Authentification à deux facteurs (2FA) pour les back-offices.
+- Sauvegardes automatiques quotidiennes, copie sur un second datacenter.
+- Conformité avec la loi camerounaise sur la protection des données (n°2010/012) et RGPD pour les utilisateurs européens.
+- Tests de pénétration externe avant lancement et semestriellement.
+
+### 3.3. Intégrations obligatoires
+- API agrégateur de paiement (Mobile Money, carte bancaire).
+- API de géocodage pour les adresses de livraison.
+- Service de messagerie (WhatsApp Business API ou Twilio pour SMS).
+- Solution blockchain : fournisseur de service (ex: LutinX ou Web3Storage) ou nœud public sur Polygon.
+
+### 3.4. Performance
+- Temps de chargement des pages < 2 secondes sur connexion 4G mobile.
+- Support de 1000 utilisateurs simultanés en phase MVP, extensible horizontalement.
+- Disponibilité visée : 99,5% (hors maintenances programmées).
+
+---
+
+## 4. Contraintes et exigences non fonctionnelles
+
+### 4.1. Juridiques et réglementaires
+- Respect des lois sur le commerce électronique dans chaque pays cible (Cameroun, Côte d’Ivoire, Sénégal, Nigeria).
+- Gestion des droits de douane et des certificats d’exportation (NCMM Nigeria, autorisations ivoiriennes, etc.).
+- Contrats types : artiste-plateforme, acheteur-CGU, partenariat logistique.
+- Dépôt de marque *SANKOFA* auprès de l’OAPI et de l’ARIPO.
+
+### 4.2. Financières
+- Commission plateforme : 25% sur la première vente de l’artiste, 15% sur les suivantes.
+- Frais de transaction Mobile Money : 1 à 3% (pris en charge par l’acheteur ou intégrés au prix).
+- Coût de la blockchain : < 100 FCFA par certificat (réseau Polygon).
+- Budget prévisionnel de développement (MVP) : 25 000 000 – 40 000 000 FCFA (selon équipe interne ou prestataire).
+- Budget marketing initial : 10 000 000 FCFA.
+
+### 4.3. Humaines (rôles clés pour l’exploitation)
+- Chef de projet / Product Owner.
+- Développeurs full-stack (2 personnes).
+- UI/UX designer.
+- Community manager / support client (1 personne).
+- Responsable logistique et partenariats.
+- Expert juridique (consultant externe).
+
+---
+
+## 5. Planning de réalisation (MVP)
+
+| Activité | Durée | Responsable |
+|----------|-------|-------------|
+| Spécifications détaillées | 2 semaines | Chef de projet |
+| Maquettes et parcours utilisateur | 2 semaines | Designer |
+| Développement backend (auth, utilisateurs, œuvres) | 4 semaines | Dev back |
+| Développement frontend (vitrine, panier) | 4 semaines | Dev front |
+| Intégration paiement Mobile Money (agrégateur) | 2 semaines | Dev full-stack |
+| Module de certificat blockchain | 2 semaines | Dev full-stack |
+| Module logistique (étiquettes, suivi) | 2 semaines | Dev back |
+| Tests unitaires et d’intégration | 2 semaines | Tous |
+| Recette utilisateurs (10 artistes, 10 acheteurs) | 2 semaines | Chef de projet |
+| Corrections et optimisation | 2 semaines | Devs |
+| Déploiement et mise en production | 1 semaine | DevOps |
+
+**Total estimé** : 3 mois (délai compressible avec équipe dédiée).
+
+---
+
+## 6. Critères d’acceptation et livrables finaux
+
+### 6.1. Fonctionnalités obligatoires pour la livraison du MVP
+- Inscription et authentification des artistes et acheteurs.
+- Dépôt et publication d’une œuvre (avec photos, description, prix).
+- Navigation avec filtres (pays, style, prix).
+- Passer une commande : ajout au panier, paiement par Mobile Money avec séquestre.
+- Notifications par SMS/WhatsApp (statut de commande).
+- Validation acheteur et déblocage des fonds vers l’artiste.
+- Génération d’un certificat d’authenticité (simple PDF avec QR code et hash sur serveur – blockchain en version 2).
+- Espace administrateur pour valider les œuvres et gérer les utilisateurs.
+
+### 6.2. Livrables techniques
+- Code source complet (repository privé).
+- Base de données structurée et documentation.
+- Manuel d’administration et de maintenance.
+- Guide d’utilisation pour artistes et acheteurs.
+- Rapport des tests de sécurité.
+
+---
+
+## 7. Risques et mesures d’atténuation
+
+| Risque | Probabilité | Impact | Atténuation |
+|--------|-------------|--------|--------------|
+| Faible adoption par les artistes | Moyenne | Élevé | Programme ambassadeurs, commission réduite première année, onboarding personnalisé |
+| Problèmes de fiabilité du paiement Mobile Money | Faible | Élevé | Agrégateur réputé + tests de charge ; fonds de secours pour les remboursements |
+| Litiges fréquents sur la conformité des œuvres | Moyenne | Moyen | Processus clair, assurance transport, médiateur externe |
+| Complexité douanière pour les livraisons internationales | Élevée | Élevé | Démarrer par des livraisons locales (même ville) puis étendre avec partenaires spécialisés |
+| Vol ou perte des œuvres pendant transport | Moyenne | Élevé | Assurance systématique, formation des transporteurs, emballage standardisé |
+| Concurrence de grandes plateformes (Latitudes, etc.) | Faible | Moyen | Spécialisation locale, curation humaine, communauté forte, concept SANKOFA unique |
+
+---
+
+## 8. Annexes (documents de référence)
+- Étude concurrentielle (annexe 1).
+- Maquettes des écrans principaux (à produire).
+- Contrats types (artiste, acheteur, curateur, transporteur).
+- Guide d’emballage et de logistique.
+- Plan de marketing et d’acquisition.
+
+---
+
+**Validation :**  
+Le présent cahier des charges a été établi sur la base des échanges avec le porteur du projet. Toute modification doit faire l’objet d’un avenant signé par les parties.
+
+*Date : 15 juin 2026*  
+*Rédacteur : Conseiller stratégique (Jizi)*  
+*Approbation : Styve (NOIR) – Fondateur*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# CAHIER DES CHARGES – FONCTIONNALITÉS DU PROJET SANKOFA  
+*Version détaillée par module, user stories, critères d’acceptation et priorisation*
+
+---
+
+## Légende des priorités
+- **P0** : indispensable pour le MVP (lancement)
+- **P1** : nécessaire dans les 6 mois suivant le lancement
+- **P2** : optionnel / à moyen terme (12 mois)
+
+---
+
+## MODULE 1 : GESTION DES UTILISATEURS
+
+### 1.1. Inscription et authentification
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| U-01 | Inscription artiste | P0 | En tant qu’artiste, je veux créer un compte avec mon email et mon numéro de téléphone, afin de pouvoir déposer mes œuvres. | - Formulaire avec nom, prénom, email, téléphone, mot de passe. - Validation par OTP SMS. - Vérification d’identité ultérieure (upload CNI + selfie) avant la première publication. - Statut « artiste en attente de validation » jusqu’à vérification. |
+| U-02 | Inscription acheteur | P0 | En tant qu’acheteur, je veux créer un compte rapidement par email ou numéro de téléphone, afin de pouvoir acheter. | - Formulaire simplifié (email ou téléphone, mot de passe). - Validation par OTP. - Pas de vérification d’identité obligatoire. |
+| U-03 | Authentification (login) | P0 | En tant qu’utilisateur, je veux me connecter avec email/téléphone et mot de passe. | - Champ email/téléphone + mot de passe. - Récupération de mot de passe par email ou SMS. - Option « se souvenir de moi ». |
+| U-04 | Profil public artiste | P0 | En tant qu’artiste, je veux un profil public affichant ma biographie, ma galerie d’œuvres et mes informations de contact. | - URL personnalisable (ex: /artiste/nom). - Bio (max 2000 caractères), photo de profil, couverture. - Liste des œuvres publiées (avec vignettes). - Lien vers les réseaux sociaux. - Badge « certifié SANKOFA » après formation. |
+| U-05 | Profil acheteur (privé) | P1 | En tant qu’acheteur, je veux voir l’historique de mes commandes et gérer mes informations de livraison. | - Section « Mes commandes » (statut, détails). - Carnet d’adresses. - Moyens de paiement enregistrés (facultatif). - Avis que j’ai laissés. |
+| U-06 | Rôles administrateur | P0 | En tant qu’admin, je veux gérer les utilisateurs (valider, suspendre, supprimer) et accéder à un back-office complet. | - Interface sécurisée avec liste des utilisateurs. - Filtres (statut, rôle, date). - Actions : valider artiste, suspendre, réinitialiser mot de passe. - Journal des actions. |
+
+### 1.2. Vérification des artistes
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| U-07 | Upload pièces d’identité | P0 | En tant qu’artiste, je veux télécharger ma CNI et un selfie avec une œuvre pour prouver mon identité. | - Upload d’image (max 5 Mo). - Selfie doit montrer visage + œuvre (exemple fourni). - Statut « en vérification » jusqu’à validation manuelle par admin. |
+| U-08 | Validation manuelle par admin | P0 | En tant qu’admin, je veux approuver ou rejeter une demande d’artiste avec un motif. | - Interface affichant les documents. - Boutons Approuver / Rejeter. - En cas de rejet, champ « Motif » envoyé à l’artiste par email. |
+
+---
+
+## MODULE 2 : GESTION DES ŒUVRES
+
+### 2.1. Dépôt d’œuvre
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| O-01 | Formulaire de dépôt | P0 | En tant qu’artiste, je veux remplir un formulaire avec les informations de mon œuvre (titre, dimensions, matériaux, prix, etc.) et uploader des photos. | - Champs obligatoires : titre, description (histoire, technique, message), dimensions (cm), matériaux, prix (FCFA), pays d’origine. - Upload de 3 à 5 photos (jpg/png, max 5 Mo chacune). - Option vidéo (YouTube/Vimeo embed). - Acceptation des CGU. |
+| O-02 | Sauvegarde en brouillon | P1 | En tant qu’artiste, je veux sauvegarder mon œuvre en brouillon avant de la soumettre à validation. | - Bouton « Sauvegarder brouillon ». - Les brouillons sont listés dans tableau de bord. - Possibilité de reprendre l’édition. |
+| O-03 | Curation automatique anti‑fraude | P1 | En tant que plateforme, je dois détecter les images trop petites, les doublons ou les contenus inappropriés. | - Vérification résolution (minimum 800x600). - Détection de doublon via hash d’image (comparaison avec base). - Signalement si contenu suspect (nu, violence). |
+
+### 2.2. Validation curatoriale
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| O-04 | File d’attente de validation | P0 | En tant qu’admin ou curateur, je veux voir la liste des œuvres en attente et les valider/refuser. | - Interface avec pagination, filtres (date, pays, artiste). - Affichage de l’œuvre et des photos. - Bouton « Publier » ou « Refuser ». - Si refus, champ « Motif » (ex: qualité photo insuffisante, hors thème). |
+| O-05 | Notification de décision | P0 | En tant qu’artiste, je reçois une notification par email et WhatsApp quand mon œuvre est acceptée ou refusée. | - Email avec lien vers l’œuvre publiée (si acceptée) ou motif détaillé (si refusée). - Notification WhatsApp automatisée. |
+
+### 2.3. Publication et visibilité
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| O-06 | Fiche œuvre publique | P0 | En tant qu’acheteur, je veux voir une fiche détaillée avec carrousel de photos, description, vidéo, prix, et bouton « Acheter ». | - Carrousel photos (plein écran zoomable). - Description textuelle. - Vidéo intégrée (iframe). - Informations : dimensions, matériaux, artiste, pays. - Prix affiché en FCFA. - Bouton « Ajouter au panier ». |
+| O-07 | Filtres et recherche | P0 | En tant qu’acheteur, je veux filtrer les œuvres par prix, pays, style, matériaux, et rechercher par mot‑clé. | - Filtres : tranche de prix (définie par intervalles), pays, style (abstrait, figuratif, numérique, sculpture, etc.), matériaux. - Barre de recherche plein texte (titre, artiste, description). |
+| O-08 | Œuvres recommandées | P1 | En tant qu’acheteur, je veux voir des œuvres similaires sur la fiche d’une œuvre que je consulte. | - Moteur simple basé sur les tags et le style. - Affichage en dessous de la fiche produit. |
+| O-09 | Statistiques de l’œuvre pour l’artiste | P1 | En tant qu’artiste, je veux voir combien de vues et de clics a reçues chaque œuvre dans mon tableau de bord. | - Graphique d’évolution des vues par jour/semaine. - Nombre de fois ajoutée au panier. |
+
+---
+
+## MODULE 3 : PANIER ET PROCESSUS D’ACHAT
+
+### 3.1. Panier
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| C-01 | Ajout / retrait panier | P0 | En tant qu’acheteur, je veux ajouter une œuvre à mon panier et modifier la quantité (1 max par œuvre). | - Bouton « Ajouter au panier » sur fiche produit. - Icône panier avec compteur. - Page panier : liste des œuvres, prix unitaire, prix total, bouton « Supprimer ». |
+| C-02 | Calcul des frais de livraison | P0 | En tant qu’acheteur, je veux voir les frais de livraison estimés avant paiement, en fonction de mon adresse. | - Saisie de la ville (ex: Douala, Yaoundé, autre). - Affichage du montant (tarif fixe par zone dans un premier temps). - Possibilité d’ajouter une assurance (incluse par défaut). |
+| C-03 | Validation du panier | P0 | En tant qu’acheteur, je valide mon panier et passe à l’étape de paiement. | - Récapitulatif final : œuvres, sous‑total, frais de livraison, total. - Bouton « Passer la commande ». |
+
+### 3.2. Paiement et séquestre
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| P-01 | Sélection du mode de paiement | P0 | En tant qu’acheteur, je choisis Mobile Money (Orange Money, MTN MoMo) ou carte bancaire (via agrégateur). | - Boutons radios avec logos des opérateurs. - Champ numéro de téléphone Mobile Money (vérifié par OTP). |
+| P-02 | Initiation du paiement séquestre | P0 | En tant que plateforme, je bloque les fonds sur un compte séquestre technique dès validation de l’acheteur. | - Appel à l’API de l’agrégateur. - Déduction immédiate du montant total du compte Mobile Money de l’acheteur. - Confirmation « Paiement accepté, fonds bloqués ». - Statut commande = « Paiement reçu – en attente expédition ». |
+| P-03 | Notification à l’artiste | P0 | En tant qu’artiste, je reçois une notification (email, WhatsApp) d’une nouvelle vente avec les détails de l’œuvre et l’adresse de livraison. | - Message : « Félicitations, votre œuvre [titre] a été vendue. Veuillez préparer l’expédition. » - Lien vers la commande dans le tableau de bord. |
+| P-04 | Déblocage des fonds | P0 | En tant que plateforme, je libère les fonds vers l’artiste après validation de l’acheteur ou expiration du délai de rétractation (48h). | - Acheteur clique « Réception conforme » → déclenchement virement automatique. - Si pas d’action sous 48h, déblocage automatique. - Commission plateforme prélevée avant virement. - Virement sur Mobile Money de l’artiste sous 24h. |
+| P-05 | Gestion des litiges (annulation) | P0 | En tant qu’acheteur, je peux signaler un problème (œuvre non conforme, endommagée) et déclencher un litige. | - Bouton « Signaler un problème » dans la commande. - Saisie motif, photos. - Statut « Litige en cours ». - Les fonds restent bloqués jusqu’à décision du médiateur. |
+
+---
+
+## MODULE 4 : LOGISTIQUE ET SUIVI DE LIVRAISON
+
+### 4.1. Expédition par l’artiste
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| L-01 | Génération d’étiquette | P1 | En tant qu’artiste, je génère une étiquette d’expédition avec le code de suivi. | - Dans le tableau de bord, pour chaque commande, bouton « Préparer l’envoi ». - Génération d’un PDF à imprimer : adresse de l’acheteur, adresse du hub (ou directement chez l’acheteur). - Code de suivi unique. |
+| L-02 | Confirmation d’expédition | P0 | En tant qu’artiste, je confirme que j’ai expédié l’œuvre (en hub ou direct). | - Bouton « J’ai expédié ». - Saisie du numéro de suivi du transporteur (si disponible). - Changement de statut commande : « Expédiée ». |
+| L-03 | Intégration transporteur | P1 | En tant que plateforme, je m’intègre à l’API d’un transporteur partenaire pour un tracking automatique. | - Les statuts (ramassé, en transit, livré) sont mis à jour automatiquement. - L’acheteur voit la position sur une carte simplifiée. |
+
+### 4.2. Hub central (optionnel phase 1)
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| L-04 | Enregistrement à réception au hub | P1 | En tant qu’agent hub, je scanne le code de l’œuvre reçue et valide l’inspection. | - Interface web ou mobile hub. - Scan du QR code sur l’étiquette. - État « Réception hub – inspection en cours ». - Photos de l’œuvre à l’arrivée (traçabilité). |
+| L-05 | Reconditionnement et réexpédition | P1 | En tant qu’agent hub, je génère une nouvelle étiquette pour la livraison finale vers l’acheteur. | - Après inspection positive, impression étiquette finale. - Statut « Expédiée vers l’acheteur ». - Mise à jour du tracking pour l’acheteur. |
+
+### 4.3. Livraison et réception
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| L-06 | Validation de réception par l’acheteur | P0 | En tant qu’acheteur, je confirme avoir reçu l’œuvre et qu’elle est conforme. | - Depuis la page commande, bouton « Réception conforme ». - Possibilité d’ajouter un commentaire. - Déclenche le déblocage des fonds. |
+| L-07 | Signalement de non-conformité | P0 | En tant qu’acheteur, je signale un problème (œuvre endommagée, non conforme) avec photos. | - Bouton « Signaler un problème ». - Interface de litige (voir module 5). |
+
+---
+
+## MODULE 5 : CERTIFICATION ET AUTHENTICITÉ
+
+### 5.1. Certificat numérique
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| CERT-01 | Génération automatique du certificat | P0 | En tant que plateforme, je génère un certificat d’authenticité au moment de la vente finalisée (après validation acheteur). | - PDF généré avec : nom de l’œuvre, artiste, dimensions, matériaux, date de création, date de vente, numéro unique. - QR code redirigeant vers une page de vérification en ligne. |
+| CERT-02 | Empreinte blockchain (simple) | P1 | En tant qu’acheteur, je peux vérifier l’authenticité via une empreinte stockée sur une blockchain publique (Polygon). | - Hash du certificat + métadonnées enregistré via un smart contract. - Sur la page de vérification, affichage « Authentifié le [date] » et adresse de la transaction. |
+| CERT-03 | Page de vérification publique | P1 | En tant que tiers (collectionneur, galerie), je peux entrer le numéro de certificat pour vérifier son authenticité. | - Page sans authentification. - Affiche les métadonnées et le statut (valide / révoqué / non trouvé). - Possibilité de télécharger le PDF original. |
+
+### 5.2. Protection anti‑contrefaçon
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| CERT-04 | Filigrane visible sur images basses résolution | P0 | En tant que plateforme, j’ajoute un logo semi‑transparent sur les images des œuvres dans le catalogue public. | - Logo SANKOFA répété en diagonale. - Pas de filigrane sur les images en haute résolution (accès uniquement après achat ou pour l’artiste). |
+| CERT-05 | Détection de plagiat externe | P2 | En tant qu’admin, je lance un scan mensuel des images de la plateforme sur Google Images/Tineye. | - Rapport des correspondances trouvées. - Notification à l’artiste. - Possibilité de retrait de l’œuvre en cas de plagiat avéré. |
+
+---
+
+## MODULE 6 : AVIS, NOTATIONS ET RÉPUTATION
+
+### 6.1. Avis post‑transaction
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| R-01 | Notation de l’artiste par l’acheteur | P0 | En tant qu’acheteur, après une transaction validée, je note l’artiste (étoiles 1-5) et laisse un commentaire. | - Invitation envoyée automatiquement 48h après validation réception. - Note globale visible sur le profil artiste. - Commentaire public après modération (pas d’insultes, pas d’infos perso). |
+| R-02 | Notation de l’acheteur par l’artiste | P1 | En tant qu’artiste, après déblocage des fonds, je note l’acheteur (sérieux, rapidité de validation). | - Note non publique (seule la plateforme peut s’en servir pour détecter acheteurs problématiques). - Seuil d’alerte : si note moyenne < 2, déclenche vérification manuelle avant prochains achats. |
+| R-03 | Affichage des avis sur le profil artiste | P0 | En tant qu’acheteur potentiel, je veux lire les avis des précédents acheteurs. | - Tri par date ou par note. - Note moyenne arrondie à 0,5. - Possibilité de signaler un avis abusif. |
+
+---
+
+## MODULE 7 : CURIATION ET EXPOSITIONS VIRTUELLES
+
+### 7.1. Back‑office curateur
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| CUR-01 | Accès au vivier “non publiés” | P1 | En tant que curateur partenaire, je vois les œuvres en attente de publication que je peux sélectionner. | - Interface filtrée par pays, style. - Ajout possible à une « collection » sans validation définitive. - Curateur propose une collection à l’admin. |
+| CUR-02 | Création d’exposition virtuelle | P1 | En tant que curateur, je crée une exposition avec un titre, une description, et 5 à 15 œuvres (déjà publiées ou à venir). | - URL dédiée (ex: /expo/nom). - Page avec grille d’œuvres, texte de présentation, nom du curateur. - Partageable sur réseaux sociaux. |
+| CUR-03 | Suivi des ventes générées par la curation | P1 | En tant que curateur, je vois combien d’œuvres de ma collection ont été vendues et ma commission accumulée. | - Tableau de bord avec KPIs : clics, vues, ventes. - Estimation de commission (5% des ventes). - Virement mensuel. |
+
+### 7.2. Expositions officielles (plateforme)
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| CUR-04 | Page “À la une” | P0 | En tant qu’admin, je sélectionne une exposition virtuelle ou une collection d’œuvres à mettre en avant sur la page d’accueil. | - Bloc carrousel sur la home. - Rotation hebdomadaire. |
+| CUR-05 | Appel à candidatures thématique | P2 | En tant qu’admin, je lance un appel à candidatures (ex: « Art et mémoire ») avec dates de soumission. | - Page dédiée avec règlement. - Les artistes peuvent postuler en déposant une œuvre avec tag spécifique. - Sélection finale par curateur invité. |
+
+---
+
+## MODULE 8 : NOTIFICATIONS ET COMMUNICATION
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| N-01 | Notification par email | P0 | En tant qu’utilisateur, je reçois des emails transactionnels (validation d’inscription, vente, expédition, litige). | - Template responsive. - Lien de désabonnement pour les emails marketing. - Envoi via service (Sendinblue, Mailgun). |
+| N-02 | Notification WhatsApp / SMS | P0 | En tant qu’utilisateur, je reçois des SMS ou WhatsApp pour les événements critiques (vente, litige, déblocage). | - Utilisation de l’API WhatsApp Business ou Twilio. - Messages courts et informatifs. - Consentement requis. |
+| N-03 | Centre de notification dans l’app | P1 | En tant qu’utilisateur connecté, je veux voir mes notifications (cloche) sur la plateforme. | - Liste des notifications : nouvelles commandes, messages, statuts. - Marquage « lu ». |
+
+---
+
+## MODULE 9 : ADMINISTRATION ET PILOTAGE
+
+### 9.1. Tableaux de bord KPIs
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| AD-01 | Dashboard général | P0 | En tant qu’admin, je vois en temps réel : nombre d’artistes, d’acheteurs, d’œuvres publiées, de commandes, CA brut (GMV). | - Graphiques d’évolution (7 jours, 30 jours). - Répartition par pays. - Export CSV des données. |
+| AD-02 | Dashboard investisseur (simplifié) | P1 | En tant qu’investisseur partenaire, je vois les indicateurs clés (GMV, commission perçue, nombre de transactions). | - Accès restreint (lecture seule). - Pas d’informations individuelles sur les artistes. |
+| AD-03 | Rapport de conformité douanière | P2 | En tant qu’admin, j’exporte par pays un rapport des œuvres exportées avec leurs certificats. | - Filtre par pays de destination. - Export Excel. |
+
+### 9.2. Gestion des litiges
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| AD-04 | File d’attente des litiges | P0 | En tant qu’admin/médiateur, je vois tous les litiges ouverts avec leur statut, les preuves (photos), et les messages. | - Interface avec chronologie des échanges. - Boutons : « Donner raison à l’acheteur » (remboursement partiel/total), « Donner raison à l’artiste » (déblocage des fonds), « Proposer médiation ». |
+| AD-05 | Gestion des remboursements | P0 | En cas de litige gagné par l’acheteur, la plateforme peut rembourser depuis le fonds de garantie ou demander à l’artiste. | - Flux de remboursement automatique vers Mobile Money de l’acheteur. - Suivi comptable dédié. |
+
+### 9.3. Configuration de la plateforme
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| AD-06 | Paramètres généraux | P1 | En tant qu’admin, je modifie les pourcentages de commission, les frais de livraison par zone, le seuil de paiement minimum. | - Interface de configuration sans redéploiement. - Validation des changements par double confirmation. |
+| AD-07 | Gestion des pays et devises | P1 | En tant qu’admin, j’active/désactive un pays, je définis la devise locale (FCFA pour zone CFA, NGN pour Nigeria, etc.). | - Taux de conversion interne (via API si nécessaire). - Affichage prix dans la devise locale. |
+
+---
+
+## MODULE 10 : COMPTABILITÉ ET FISCALITÉ
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| ACC-01 | Journal des transactions | P0 | En tant qu’admin, j’exporte un journal de toutes les transactions (ventes, commissions, frais de livraison, litiges) au format CSV/Excel. | - Filtrage par période, pays, artiste. - Colonnes : date, acheteur, artiste, œuvre, montant total, commission, frais livraison, net artiste, statut. |
+| ACC-02 | Attestation fiscale annuelle pour artistes | P1 | En tant qu’artiste, je télécharge un document récapitulatif de mes ventes sur l’année pour ma déclaration d’impôts. | - PDF généré : nom, adresse, total vendu, commissions retenues. - Signé électroniquement par la plateforme. |
+| ACC-03 | Retenue à la source automatique | P1 | En tant que plateforme, pour les pays où c’est obligatoire (ex: Cameroun), je calcule et mets de côté le pourcentage d’impôt à reverser au fisc. | - Paramétrage du taux par pays. - Ligne distincte sur la facture acheteur. - Rapport trimestriel pour reversement. |
+
+---
+
+## MODULE 11 : FORMATION (ACADÉMIE)
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| F-01 | Parcours obligatoire à l’inscription | P0 | En tant qu’artiste, avant ma première publication, je dois suivre 3 modules et réussir un quiz. | - Vidéos intégrées (YouTube/Vimeo). - Quiz de 5 questions par module (70% de bonnes requises). - Accès bloqué tant que non réussi. |
+| F-02 | Badge de certification | P0 | En tant qu’artiste, après avoir complété les modules, j’obtiens un badge « Artiste certifié SANKOFA » sur mon profil. | - Badge visible sur la fiche artiste et à côté du nom sur les œuvres. - Peut être retiré en cas de manquement grave (après avertissement). |
+| F-03 | Modules optionnels (marketing, droit d’auteur) | P2 | En tant qu’artiste, j’accède gratuitement à des modules avancés. | - Accès depuis l’Académie. - Pas de quiz obligatoire. - Statistiques de visionnage pour la plateforme. |
+
+---
+
+## MODULE 12 : MOBILE ET PERFORMANCE
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| M-01 | Design responsive | P0 | L’ensemble du site doit être utilisable confortablement sur smartphone (écran < 600px). | - Menu adapté (hamburger). - Boutons de taille suffisante. - Pas de débordement horizontal. |
+| M-02 | PWA (Progressive Web App) | P1 | Les utilisateurs peuvent installer l’application sur leur écran d’accueil et recevoir des notifications push. | - Manifeste json. - Service worker pour la mise en cache. - Notifications push même lorsque le navigateur est fermé. |
+| M-03 | Temps de chargement optimisé | P0 | Les pages doivent se charger en moins de 2 secondes sur une connexion 3G/4G moyenne. | - Lazy loading des images. - Compression WebP. - Utilisation d’un CDN. - Audit Lighthouse > 80 sur mobile. |
+
+---
+
+## MODULE 13 : SÉCURITÉ ET CONFORMITÉ
+
+| ID | Fonctionnalité | Priorité | User Story | Critères d’acceptation |
+|----|----------------|----------|------------|------------------------|
+| S-01 | Chiffrement des données sensibles | P0 | Les mots de passe sont hashés (bcrypt), les informations bancaires ne sont jamais stockées en clair. | - Base de données sans mot de passe en clair. - Utilisation de tokens pour paiements. |
+| S-02 | Double authentification admin | P0 | L’accès au back-office admin requiert un code supplémentaire envoyé par SMS ou application (Google Authenticator). | - Activation obligatoire pour tout compte admin. - Code à usage unique. |
+| S-03 | Politique de confidentialité et CGU | P0 | Les utilisateurs doivent accepter les CGU et la politique de confidentialité lors de l’inscription. | - Liens vers documents complets. - Consentement explicite (case à cocher). - Version datée. |
+| S-04 | Journal des logs d’administration | P1 | Toute action sensible (validation artiste, modification commission, remboursement) est enregistrée dans un journal non modifiable. | - Horodatage, ID admin, action, IP. - Consultation réservée à super admin. |
+
+---
+
+## ANNEXES
+
+### Annexe 1 : Définition des rôles utilisateurs
+
+| Rôle | Droits |
+|------|--------|
+| **Visiteur** | Navigation catalogue, recherche, consultation fiches. |
+| **Acheteur inscrit** | Panier, commande, suivi, avis, historique. |
+| **Artiste inscrit (non vérifié)** | Brouillon, soumission à validation. |
+| **Artiste vérifié** | Publication (après curation), tableau de bord, expédition, retrait fonds. |
+| **Curateur partenaire** | Accès vivier, création expositions, suivi ventes. |
+| **Admin plateforme** | Validation artistes/œuvres, gestion litiges, paramètres, KPIs. |
+| **Super admin** | Gestion des admins, logs, configuration système. |
+
+### Annexe 2 : Matrice de priorisation des fonctionnalités pour le MVP (P0)
+
+- U-01, U-02, U-03, U-04, U-06, U-07, U-08
+- O-01, O-04, O-05, O-06, O-07
+- C-01, C-02, C-03
+- P-01, P-02, P-03, P-04, P-05
+- L-02, L-06, L-07
+- CERT-01, CERT-04
+- R-01, R-03
+- N-01, N-02
+- AD-01, AD-04, AD-05
+- ACC-01
+- F-01, F-02
+- M-01, M-03
+- S-01, S-02, S-03
+
+*Total d’environ 45 fonctionnalités P0 pour le lancement.*
+
+---
+
+Ce cahier des charges fonctionnel peut être utilisé directement pour la rédaction de tickets techniques (issues) et la planification de sprints. Souhaitez-vous que je le convertisse en format JSON ou CSV pour un outil de gestion de projet (Jira, Trello) ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ÉLIGIBILITÉ DES PILIERS FONDAMENTAUX – PROJET SANKOFA
+
+L’éligibilité désigne l’ensemble des conditions (juridiques, techniques, financières, qualitatives) qu’un acteur doit remplir pour être accepté sur la plateforme et bénéficier de ses services. Voici pour chacun des huit piliers.
+
+---
+
+## 1. Artistes & Créateurs
+
+**Objectif d’éligibilité** : Garantir l’authenticité des œuvres, la qualité minimale et la conformité légale.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Identité et âge** | Être majeur (≥ 18 ans) ou mineur accompagné d’un représentant légal. Justifier par pièce d’identité (CNI, passeport). | Responsabilité contractuelle et lutte contre la fraude. |
+| **Authenticité de l’œuvre** | L’œuvre doit être originale, créée par l’artiste lui-même. Pas de copies, reproductions, ou œuvres générées entièrement par IA. | Crédibilité et valeur artistique. |
+| **Qualité visuelle** | Photos haute résolution (≥ 800×600 px), fond neutre, bonne luminosité. Refus des images floues ou trop sombres. | Expérience acheteur et mise en valeur. |
+| **Propriété intellectuelle** | L’artiste certifie détenir tous les droits sur l’œuvre (pas de plagiat, pas d’infraction à des droits tiers). | Éviter les litiges de contrefaçon. |
+| **Formation obligatoire** | Suivre et réussir les 3 modules de l’Académie SANKOFA (photographie, description, emballage). | Professionnalisme et réduction des litiges logistiques. |
+| **Moyen de paiement** | Disposer d’un compte Mobile Money (Orange Money, MTN MoMo) ou compte bancaire pour recevoir les virements. | Paiement des ventes. |
+| **Engagements** | Accepter la charte de confiance (délais d’expédition, emballage, non-contrefaçon). | Confiance acheteur. |
+
+**Cas particuliers** : Les artistes sans compte Mobile Money peuvent être payés par transfert Western Union (frais à leur charge). Les artistes étrangers (hors zone CFA) doivent fournir un IBAN.
+
+---
+
+## 2. Acheteurs & Collectionneurs
+
+**Objectif** : Assurer la solvabilité, la bonne foi et la capacité à utiliser les outils numériques.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Âge** | Être majeur (≥ 18 ans) ou autorisé par un parent pour les achats ≤ 50 000 FCFA. | Capacité juridique à contracter. |
+| **Moyen de paiement** | Disposer d’un compte Mobile Money (Orange Money, MTN MoMo) ou carte bancaire internationale. | Paiement des commandes. |
+| **Adresse de livraison** | Fournir une adresse précise (ville, quartier, point de repère) ou un point relais. | Livraison des œuvres. |
+| **Vérification** | Pour les achats > 500 000 FCFA, une vérification d’identité supplémentaire peut être demandée (photo CNI). | Lutte contre la fraude et blanchiment. |
+| **Historique** | Pas d’antécédent de litige abusif (ex: annulations intempestives répétées). | Éviter les comportements toxiques. |
+
+**Absence de prérequis** : Aucune connaissance artistique préalable exigée.
+
+---
+
+## 3. Galeristes & Curateurs
+
+**Objectif** : S’assurer de leur légitimité professionnelle et de leur capacité à enrichir l’écosystème.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Expérience professionnelle** | Justifier d’au moins 2 ans d’activité (galerie, commissariat d’exposition, critique d’art) via CV, références, site web. | Crédibilité curatoriale. |
+| **Affiliations** | Être lié à une structure reconnue (galerie, centre d’art, musée, association professionnelle) ou recommandé par un artiste de la plateforme. | Éviter les faux curateurs. |
+| **Engagement** | Signer une charte de bonne conduite (pas de favoritisme commercial, pas de récupération d’œuvres pour soi sans transparence). | Intégrité. |
+| **Quota minimal** | Proposer au moins une exposition virtuelle par trimestre (après 3 mois d’adhésion). | Activité et contribution. |
+
+**Rémunération** : Les curateurs éligibles perçoivent 5% de commission sur les ventes générées par leur curation.
+
+---
+
+## 4. Institutions Culturelles & États
+
+**Objectif** : Établir des partenariats officiels et mutuellement bénéfiques.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Statut légal** | Être une entité publique (ministère, direction des arts) ou une association loi 1901 (ou équivalent local) à but non lucratif. | Reconnaissance officielle. |
+| **Mission** | Avoir pour mission la promotion de l’art, de la culture ou du patrimoine national. | Cohérence avec SANKOFA. |
+| **Contrepartie** | S’engager à faciliter les procédures douanières (ex: certificats d’exportation accélérés) ou à fournir des données (rapports anonymisés). | Utilité réciproque. |
+| **Non-ingérence** | Ne pas imposer de censure artistique ni de sélection politique des œuvres. | Indépendance éditoriale. |
+
+**Exemple** : Le Ministère de la Culture du Cameroun peut labelliser la plateforme « soutien à la création nationale » et obtenir des statistiques annuelles.
+
+---
+
+## 5. Investisseurs & Partenaires Financiers
+
+**Objectif** : Garantir la fiabilité des fonds et l’alignement des intérêts.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Capacité financière** | Justifier d’un montant minimum d’investissement (selon la levée : à partir de 5 000 € pour les particuliers, 50 000 € pour les fonds). | Sérieux et contribution. |
+| **Origine des fonds** | Fournir une déclaration d’origine licite (KYC/AML). | Conformité légale. |
+| **Alignement** | Accepter les conditions de la plateforme (pas d’ingérence opérationnelle, clause de non-concurrence avec des projets concurrents). | Indépendance de gestion. |
+| **Durée** | S’engager sur une période minimale (ex: 12 mois) sauf clause de sortie. | Stabilité financière. |
+
+**Exclusion** : Les fonds spéculatifs cherchant un retour à très court terme (< 2 ans) sont déconseillés.
+
+---
+
+## 6. Partenaires Technologiques
+
+**Objectif** : S’assurer de la fiabilité, sécurité et interopérabilité des services externes.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Agréments** | Pour les agrégateurs de paiement : agrément de la BEAC ou de la banque centrale du pays concerné. | Conformité réglementaire. |
+| **Certifications** | ISO 27001 (sécurité) ou PCI-DSS pour les paiements. | Robustesse. |
+| **Disponibilité (SLA)** | Engager un taux de disponibilité ≥ 99,5 % avec pénalités en cas de panne récurrente. | Service continu. |
+| **Support** | Offrir un support technique 24/7 en français ou anglais, avec temps de réponse < 4h. | Résolution rapide des incidents. |
+| **Compatibilité** | API documentée, environnement sandbox pour tests. | Intégration facilitée. |
+
+**Fournisseurs recommandés** : Paynote (Mobile Money), Stellar (blockchain), AWS (hébergement).
+
+---
+
+## 7. Partenaires Logistiques
+
+**Objectif** : Garantir la sécurité des œuvres, le respect des délais et l’assurance.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Assurance** | Disposer d’une police d’assurance couvrant les œuvres d’art en transit (vol, casse, incendie). | Protection financière. |
+| **Expérience art** | Justifier d’au moins 50 transports d’œuvres d’art ou biens fragiles sans sinistre majeur. | Savoir-faire spécifique. |
+| **Délais** | Livraison intra-urbaine ≤ 2 jours ouvrables, internationale ≤ 10 jours ouvrables. | Satisfaction acheteur. |
+| **Traçabilité** | Proposer un système de tracking en temps réel (API ou interface web). | Transparence. |
+| **Emballage** | Accepter d’utiliser le standard SANKOFA (caisses rigides, mousse anti-choc) ou fournir un équivalent certifié. | Uniformité et sécurité. |
+
+**Contrôle** : La plateforme notera les transporteurs après chaque livraison (moyenne ≥ 4,5/5 pour rester partenaire).
+
+---
+
+## 8. Experts Juridiques & Comptables
+
+**Objectif** : Bénéficier de conseils compétents et conformes au droit local.
+
+| Critère | Exigence | Justification |
+| :--- | :--- | :--- |
+| **Qualification** | Avocat inscrit au barreau d’un pays africain (Cameroun, Côte d’Ivoire, Sénégal, Nigeria) ou expert-comptable diplômé. | Connaissance des législations locales. |
+| **Spécialisation** | Justifier d’une expérience en droit des affaires, e-commerce, propriété intellectuelle ou fiscalité internationale. | Pertinence pour SANKOFA. |
+| **Pas de conflit** | Ne pas représenter simultanément des parties adverses dans un litige avec la plateforme. | Impartialité. |
+| **Tarifs** | Proposer une grille forfaitaire ou à la mission (ex: audit annuel 500 000 FCFA). | Transparence pour les artistes. |
+
+**Rôle** : Les experts éligibles seront référencés dans un annuaire partenaire. Les artistes pourront les consulter à prix négocié.
+
+---
+
+## Synthèse des prérequis transversaux
+
+| Pilier | Prérequis communs |
+| :--- | :--- |
+| Tous | Acceptation des CGU et de la charte de confidentialité. |
+| Artistes, acheteurs, curateurs | Avoir un compte actif et vérifié (niveau selon le rôle). |
+| Partenaires (tech, logistique, juridique) | Signer un contrat de partenariat avec clauses de performance et de résiliation. |
+| Investisseurs | Clause de non-divulgation et conformité AML. |
+
+---
+
+Ces critères d’éligibilité seront intégrés dans les processus d’inscription et de validation automatisés (pour les plus simples) ou manuels (examen par l’équipe SANKOFA). Souhaitez-vous que je décline ces critères sous forme de checklist ou de flux de validation ?

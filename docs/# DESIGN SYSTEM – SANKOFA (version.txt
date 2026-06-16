@@ -1,0 +1,158 @@
+# DESIGN SYSTEM – SANKOFA (version mise à jour)
+
+## 1. Principes fondateurs
+
+- **Mobile‑first** : conçu pour smartphone (≥ 44px de zone tactile), puis adapté aux écrans plus larges.
+- **Accessible** : conforme WCAG 2.1 niveau AA (contraste, focus visible, textes alternatifs).
+- **Cohérent** : utilisation de tokens de design (couleurs, espacements, typographie).
+- **Évolutif** : composants réutilisables documentés dans Storybook.
+- **Ancrage culturel** : couleurs chaudes et naturelles, typographie élégante.
+
+---
+
+## 2. Tokens de design (config Tailwind)
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#C75C3A',    // terre cuite – actions principales
+        secondary: '#E8D9C6',  // sable – fonds alternatifs
+        dark: '#1E1B1A',       // nuit – textes principaux
+        accent: '#D9A13B',     // or ocre – badges, certifications
+        success: '#2A7A3E',    // vert forêt – confirmations
+        error: '#B33C2E',      // rouge brique – erreurs, litiges
+        info: '#2A6B8F',       // bleu nuit – informations
+        neutral: '#5A4A42',    // texte secondaire
+        border: '#D6CFC4',     // bordures
+        background: '#FCFAF5', // fond de page
+        card: '#FFFFFF',       // fond des cartes
+      },
+      spacing: {
+        18: '4.5rem',  // 72px
+      },
+      fontFamily: {
+        serif: ['Playfair Display', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1.3' }],
+        'sm': ['0.875rem', { lineHeight: '1.4' }],
+        'base': ['1rem', { lineHeight: '1.5' }],
+        'lg': ['1.25rem', { lineHeight: '1.4' }],
+        'xl': ['1.5rem', { lineHeight: '1.3' }],
+        '2xl': ['2rem', { lineHeight: '1.2' }],
+        '3xl': ['2.5rem', { lineHeight: '1.2' }],
+      },
+      borderRadius: {
+        DEFAULT: '0.5rem', // 8px
+        'full': '9999px',
+      },
+      boxShadow: {
+        card: '0 2px 8px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1)',
+        hover: '0 8px 20px rgba(0,0,0,0.1)',
+      },
+    },
+  },
+}
+```
+
+---
+
+## 3. Typographie
+
+| Élément | Police | Taille (rem) | Poids | Usage |
+|---------|--------|--------------|-------|-------|
+| h1 | Playfair Display | 2.5 (mobile : 2) | Bold | Titre de page |
+| h2 | Playfair Display | 2 (mobile : 1.75) | Semi‑bold | Sections |
+| h3 | Playfair Display | 1.5 | Medium | Sous‑sections |
+| Corps | Inter | 1 | Regular | Descriptions, textes longs |
+| Métadonnées | Inter | 0.875 | Regular | Dates, dimensions |
+| Légendes | Inter | 0.75 | Regular | Notes, crédits |
+
+**Règles** : interlignage 1.5 pour le corps, 1.2 pour les titres. Échelle fluide.
+
+---
+
+## 4. Palette d’illustrations et icônes
+
+- **Icônes** : Heroicons (outline) ou Lucide React – homogènes, légères.
+- **Illustrations** : style organic lines, encrées, représentant des artistes au travail, œuvres, connexions. Éviter les photos génériques.
+- **Traitement des photos d’œuvres** : jamais de filtre automatique ; l’artiste doit fournir une image brute (recadrage seulement). Sur la plateforme, affichage avec object-fit `contain` ou `cover` selon le contexte.
+
+---
+
+## 5. Composants clés (extrait)
+
+### 5.1. Boutons
+
+- **Taille minimale** : 44×44px (hauteur 44px, padding horizontal 20px).
+- **Variantes** :
+  - `primary` : fond `primary`, texte blanc, arrondi 8px, ombre légère. Hover : fond plus foncé (`#A54326`).
+  - `secondary` : bordure `primary`, texte `primary`, fond transparent.
+  - `danger` : fond `error`, texte blanc.
+  - `disabled` : fond `neutral-light`, texte `neutral`.
+- **État de chargement** : spinner + texte « Chargement… » désactive le bouton.
+
+### 5.2. Cartes œuvre (ArtworkCard)
+
+- **Largeur** : flexible (min 160px, max 300px) selon grille.
+- **Contenu** : image (ratio 1:1, object-fit cover), titre (h3), nom artiste, prix (gras), icône cœur.
+- **Badges** : « Certifié » (fond `accent`), « Location » (fond `primary` clair), « Nouveau » (fond `success`).
+- **Interaction** : au survol (desktop) léger scale (1.02) + ombre.
+
+### 5.3. Formulaires
+
+- **Champ** : bordure `border`, arrondi 8px, padding 12px 16px.
+- **Label** : au‑dessus, texte `neutral`, taille `sm`.
+- **Message d’erreur** : en dessous, texte `error`, taille `xs`.
+- **Upload de photos** : zone de dépôt avec vignettes de prévisualisation, bouton d’ajout.
+
+### 5.4. Modale de paiement / location
+
+- **Fond** : semi‑transparent (`rgba(0,0,0,0.5)`).
+- **Largeur** : 500px max, centrée.
+- **Étapes** : Stepper (panier → paiement → confirmation).
+- **Paiement Mobile Money** : sélection du réseau (Orange Money, MTN MoMo), saisie du numéro, bouton « Payer ». Indication « fonds séquestrés jusqu’à livraison ».
+
+### 5.5. Tableau de bord artiste
+
+- **Grille** : 2 colonnes (mobile) → 4 colonnes (desktop).
+- **Cartes de stats** : fond `card`, ombre `card`, padding `lg`, icône + valeur.
+- **Graphiques** : lignes simples (Recharts), couleurs `primary` et `accent`.
+- **Actions principales** : bouton « Déposer une œuvre » toujours visible.
+
+---
+
+## 6. Accessibilité (obligatoire)
+
+- **Contrastes** : vérifier avec outil (ex: WebAIM). Tous les textes sur fond coloré respectent un ratio ≥ 4.5:1.
+- **Focus visible** : `outline: 2px solid primary` et `outline-offset: 2px` (ne jamais utiliser `outline: none`).
+- **Textes alternatifs** : toutes les images (œuvres, avatars) ont une `alt` descriptive.
+- **ARIA** : utiliser `aria-label` sur les icônes sans texte, `role="dialog"` sur les modales.
+- **Taille des cibles** : tous les éléments cliquables ≥ 44×44px (vérifier avec un outil d’inspection).
+- **Redimensionnement** : le site reste lisible et utilisable jusqu’à 200% de zoom.
+
+---
+
+## 7. Organisation technique
+
+- **Composants** : dossier `@/components/ui` (Button, Card, Modal, etc.).
+- **Styles** : Tailwind CSS avec configuration personnalisée ; pas de CSS‑in‑JS.
+- **Storybook** : déployé sur Vercel, couvrant tous les composants avec leurs variantes et états.
+- **Documentation** : `design-system.md` dans le repo, mis à jour à chaque modification significative.
+
+---
+
+## 8. Évolutions futures (V2, V3)
+
+- **V2** : composants pour la location (RentalOptionCard, RentalSummary), réalité augmentée (ARViewer).
+- **V2** : thème sombre (déclinaison des couleurs pour le mode nuit).
+- **V3** : composants pour l’enchère en ligne (AuctionCard, BidButton).
+- **V3** : badges de réputation avancés (score de confiance).
+
+---
+
+Ce design system est la base unique pour tout développement front-end. Toute modification doit passer par une revue (lead dev + designer) et être documentée dans Storybook.
