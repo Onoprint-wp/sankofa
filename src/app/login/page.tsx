@@ -13,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [loginMethod, setLoginMethod] = useState<"password" | "magic">("password");
 
@@ -61,6 +62,30 @@ export default function Login() {
       setMagicLinkSent(true);
     } catch (err: any) {
       setServerError(err.message || "Impossible d'envoyer le lien magique.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setServerError("Veuillez saisir votre adresse email dans le champ ci-dessus pour réinitialiser votre mot de passe.");
+      return;
+    }
+    setIsSubmitting(true);
+    setServerError(null);
+    setResetSent(false);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login`,
+      });
+
+      if (error) throw error;
+      setResetSent(true);
+    } catch (err: any) {
+      setServerError(err.message || "Erreur lors de la réinitialisation du mot de passe.");
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +142,22 @@ export default function Login() {
             </div>
           )}
 
-          {magicLinkSent ? (
+          {resetSent ? (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center animate-fadeIn">
+              <CheckCircle2 className="w-16 h-16 text-success mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-success-dark mb-3">Email envoyé !</h2>
+              <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                Un email de réinitialisation de mot de passe a été envoyé à l’adresse <span className="font-semibold">{email}</span>.
+              </p>
+              <button
+                type="button"
+                onClick={() => setResetSent(false)}
+                className="text-xs text-primary font-bold hover:underline bg-transparent border-0 cursor-pointer"
+              >
+                Retourner à la connexion
+              </button>
+            </div>
+          ) : magicLinkSent ? (
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center animate-fadeIn">
               <CheckCircle2 className="w-16 h-16 text-success mx-auto mb-4" />
               <h2 className="text-xl font-bold text-success-dark mb-3">Lien envoyé !</h2>
@@ -155,9 +195,13 @@ export default function Login() {
                   <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-neutral">
                     Mot de passe
                   </label>
-                  <Link href="#" className="text-xs text-primary font-bold hover:underline">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-xs text-primary font-bold hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                  >
                     Mot de passe oublié ?
-                  </Link>
+                  </button>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral/85" />
