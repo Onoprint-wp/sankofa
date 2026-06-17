@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, AlertTriangle, AlertCircle, User, Palette } from "lucide-react";
+import { CheckCircle2, AlertTriangle, AlertCircle, User, Palette } from "lucide-react";
 import { signUpSchema, type SignUpInput } from "@/lib/validations";
 import { supabase } from "@/lib/supabaseClient";
+import TransactionalLayout from "@/components/layout/TransactionalLayout";
 
 export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,20 +69,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary/15 text-dark flex flex-col justify-between font-sans">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          <Link href="/" className="font-serif text-2xl font-bold tracking-wider text-primary">
-            SANKOFA
-          </Link>
-          <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors h-11">
-            <ArrowLeft className="w-4 h-4" />
-            Retour à l’accueil
-          </Link>
-        </div>
-      </header>
-
+    <TransactionalLayout backHref="/" backLabel="Retour à l’accueil">
       {/* Main container */}
       <main className="flex-1 max-w-xl w-full mx-auto px-4 py-12">
         <div className="bg-card border border-border/80 rounded-xl shadow-card p-6 sm:p-10 relative overflow-hidden">
@@ -314,10 +302,6 @@ export default function SignUp() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-dark text-white py-6 border-t border-neutral/25 text-center text-xs text-gray-500">
-        <p>© 2026 SANKOFA. Tous droits réservés.</p>
-      </footer>
-    </div>
+    </TransactionalLayout>
   );
 }

@@ -1,4 +1,4 @@
-import { signUpSchema, artworkSchema } from "../src/lib/validations";
+import { signUpSchema, artworkSchema, kycReviewSchema, artworkReviewSchema } from "../src/lib/validations";
 
 describe("Validation Schemas - SANKOFA", () => {
   describe("Sign Up Schema (signUpSchema)", () => {
@@ -159,6 +159,90 @@ describe("Validation Schemas - SANKOFA", () => {
 
       const result = artworkSchema.safeParse(validRental);
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe("KYC Document Review Schema (kycReviewSchema)", () => {
+    const artistId = "f3c3065a-0d29-43c3-8e47-e170cfa5f590";
+
+    it("should accept approval without a rejection reason", () => {
+      const payload = {
+        artist_id: artistId,
+        status: "approved",
+      };
+      const result = kycReviewSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept rejection with a valid reason", () => {
+      const payload = {
+        artist_id: artistId,
+        status: "rejected",
+        rejection_reason: "Les photos de la carte d'identité sont floues.",
+      };
+      const result = kycReviewSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject rejection without any reason", () => {
+      const payload = {
+        artist_id: artistId,
+        status: "rejected",
+      };
+      const result = kycReviewSchema.safeParse(payload);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.flatten().fieldErrors.rejection_reason).toContain(
+          "Le motif de rejet est requis et doit faire au moins 5 caractères en cas de refus"
+        );
+      }
+    });
+
+    it("should reject rejection with a short reason (< 5 chars)", () => {
+      const payload = {
+        artist_id: artistId,
+        status: "rejected",
+        rejection_reason: "Non",
+      };
+      const result = kycReviewSchema.safeParse(payload);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("Artwork Curation Review Schema (artworkReviewSchema)", () => {
+    const artworkId = "a28f7311-6677-4df3-b31c-0c19a9307d9f";
+
+    it("should accept publication without a rejection reason", () => {
+      const payload = {
+        artwork_id: artworkId,
+        status: "published",
+      };
+      const result = artworkReviewSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept refusal with a valid reason", () => {
+      const payload = {
+        artwork_id: artworkId,
+        status: "refused",
+        rejection_reason: "L'œuvre ne correspond pas aux normes de qualité du catalogue.",
+      };
+      const result = artworkReviewSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject refusal without any reason", () => {
+      const payload = {
+        artwork_id: artworkId,
+        status: "refused",
+      };
+      const result = artworkReviewSchema.safeParse(payload);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.flatten().fieldErrors.rejection_reason).toContain(
+          "Le motif de refus est requis et doit faire au moins 5 caractères en cas de rejet"
+        );
+      }
     });
   });
 });

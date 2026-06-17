@@ -10,3 +10,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export async function verifyUserNotSuspended(userId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("is_suspended")
+      .eq("id", userId)
+      .single();
+    if (error || !data) {
+      return false;
+    }
+    return !data.is_suspended;
+  } catch (err) {
+    console.error("Error in verifyUserNotSuspended:", err);
+    return false;
+  }
+}

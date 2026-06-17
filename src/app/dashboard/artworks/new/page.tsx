@@ -4,13 +4,60 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, AlertTriangle, AlertCircle, FileText } from "lucide-react";
+import { CheckCircle2, AlertTriangle, AlertCircle, FileText, Lock, Award, Loader2, Sparkles } from "lucide-react";
 import { artworkSchema, type ArtworkInput } from "@/lib/validations";
+import { useAuth } from "@/hooks/useAuth";
+import TransactionalLayout from "@/components/layout/TransactionalLayout";
+import FileUpload from "@/components/ui/FileUpload";
 
 export default function NewArtwork() {
+  const { user, profile, artist, loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<any | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [descriptionAiError, setDescriptionAiError] = useState<string | null>(null);
+
+  const generateDescriptionWithAI = async () => {
+    const titleVal = watch("title");
+    const categoryVal = watch("category");
+    const materialsVal = watch("materials") || [];
+
+    if (!titleVal || !titleVal.trim()) {
+      setDescriptionAiError("Veuillez saisir un titre avant de générer la description.");
+      return;
+    }
+
+    setIsGeneratingDescription(true);
+    setDescriptionAiError(null);
+
+    try {
+      const response = await fetch("/api/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: titleVal,
+          category: categoryVal,
+          materials: materialsVal,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Erreur de génération.");
+      }
+
+      if (result.description) {
+        setValue("description", result.description, { shouldValidate: true });
+      }
+    } catch (err: any) {
+      console.error(err);
+      setDescriptionAiError(err.message || "Une erreur est survenue pendant la génération.");
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
 
   // Initialize form with Zod schema
   const {
@@ -31,13 +78,15 @@ export default function NewArtwork() {
       depth: 0,
       weight: undefined,
       materials: [],
-      photos: ["https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5"], // default premium image placeholder
+      photos: [], // default to empty for mandatory file upload
       is_rental_available: false,
       rental_price_per_month: undefined,
     },
   });
 
   const isRentalAvailable = watch("is_rental_available");
+  const photos = watch("photos") || [];
+  const mainPhoto = photos[0] || "";
 
   const onSubmit = async (data: ArtworkInput) => {
     setIsSubmitting(true);
@@ -67,20 +116,73 @@ export default function NewArtwork() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-secondary/15 text-dark flex flex-col justify-between font-sans">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          <Link href="/" className="font-serif text-2xl font-bold tracking-wider text-primary">
-            SANKOFA
-          </Link>
-          <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors h-11">
-            <ArrowLeft className="w-4 h-4" />
-            Retour au Tableau de bord
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-secondary/15 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-neutral text-sm">Chargement de votre profil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || profile?.role !== "artist") {
+    return (
+      <div className="min-h-screen bg-secondary/15 flex items-center justify-center p-4">
+        <div className="bg-card border border-border rounded-xl p-8 max-w-md w-full text-center shadow-card relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-error" />
+          <Lock className="w-14 h-14 text-error mx-auto mb-4" />
+          <h1 className="font-serif text-2xl font-bold mb-3">Accès interdit</h1>
+          <p className="text-neutral text-sm leading-relaxed mb-6 font-medium">
+            Cette page est strictement réservée aux artistes de la plateforme SANKOFA.
+          </p>
+          <Link href="/" className="bg-primary hover:bg-primary-dark text-white text-xs font-semibold py-3 px-6 rounded shadow transition-all block h-11 flex items-center justify-center">
+            Retour au Catalogue
           </Link>
         </div>
-      </header>
+      </div>
+    );
+  }
+
+  if (artist?.kyc_status !== "approved") {
+    return (
+      <div className="min-h-screen bg-secondary/15 flex items-center justify-center p-4">
+        <div className="bg-card border border-border rounded-xl p-8 max-w-md w-full text-center shadow-card relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent" />
+          <AlertCircle className="w-14 h-14 text-accent mx-auto mb-4" />
+          <h1 className="font-serif text-2xl font-bold mb-3">KYC requis</h1>
+          <p className="text-neutral text-sm leading-relaxed mb-6 font-medium">
+            Vos documents d’identité doivent être approuvés par nos administrateurs avant d’ajouter des œuvres.
+          </p>
+          <Link href="/become-artist" className="bg-primary hover:bg-primary-dark text-white text-xs font-semibold py-3 px-6 rounded shadow transition-all block h-11 flex items-center justify-center">
+            Vérifier le statut KYC
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!artist?.academy_completed) {
+    return (
+      <div className="min-h-screen bg-secondary/15 flex items-center justify-center p-4">
+        <div className="bg-card border border-border rounded-xl p-8 max-w-md w-full text-center shadow-card relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#d9a13b]" />
+          <Award className="w-14 h-14 text-[#d9a13b] mx-auto mb-4" />
+          <h1 className="font-serif text-2xl font-bold mb-3">Certification requise</h1>
+          <p className="text-neutral text-sm leading-relaxed mb-6 font-medium">
+            Pour garantir le sérieux et le professionnalisme sur SANKOFA, vous devez valider la formation obligatoire de l’Académie avant d’ajouter votre première œuvre.
+          </p>
+          <Link href="/dashboard/academy" className="bg-primary hover:bg-primary-dark text-white text-xs font-semibold py-3 px-6 rounded shadow transition-all block h-11 flex items-center justify-center">
+            Commencer la formation
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <TransactionalLayout backHref="/" backLabel="Retour au Tableau de bord">
 
       {/* Main container */}
       <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-12">
@@ -162,9 +264,29 @@ export default function NewArtwork() {
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
-                  Description / Histoire de l’œuvre <span className="text-primary">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="description" className="block text-xs font-semibold uppercase tracking-wider text-neutral">
+                    Description / Histoire de l’œuvre <span className="text-primary">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={generateDescriptionWithAI}
+                    disabled={isGeneratingDescription}
+                    className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors flex items-center gap-1.5 min-h-[44px] px-3 border border-primary/20 rounded-lg bg-primary/5 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGeneratingDescription ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Génération...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Générer avec l&apos;IA
+                      </>
+                    )}
+                  </button>
+                </div>
                 <textarea
                   id="description"
                   {...register("description")}
@@ -180,6 +302,12 @@ export default function NewArtwork() {
                   <p className="text-error text-xs mt-1.5 flex items-center gap-1">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {errors.description.message}
+                  </p>
+                )}
+                {descriptionAiError && (
+                  <p className="text-error text-xs mt-1.5 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    {descriptionAiError}
                   </p>
                 )}
               </div>
@@ -321,23 +449,18 @@ export default function NewArtwork() {
                   )}
                 </div>
 
-                {/* Photos input */}
+                {/* Photos upload */}
                 <div>
-                  <label htmlFor="photos-raw" className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
-                    Lien de la photo principale <span className="text-primary">*</span>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
+                    Photo principale de l’œuvre <span className="text-primary">*</span>
                   </label>
-                  <input
-                    id="photos-raw"
-                    type="text"
-                    defaultValue="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5"
-                    onChange={(e) => {
-                      setValue("photos", [e.target.value], { shouldValidate: true });
-                    }}
-                    className={`w-full border rounded px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 h-11 ${
-                      errors.photos
-                        ? "border-error focus:ring-error/25"
-                        : "border-border focus:ring-primary/25"
-                    }`}
+                  <FileUpload
+                    bucket="artwork-images"
+                    value={mainPhoto}
+                    onChange={(val) => setValue("photos", val ? [val] : [], { shouldValidate: true })}
+                    label="Téléverser la photo de l’œuvre"
+                    accept="image/jpeg,image/png,image/webp"
+                    maxSizeMB={20}
                   />
                   {errors.photos && (
                     <p className="text-error text-xs mt-1.5 flex items-center gap-1">
@@ -406,10 +529,6 @@ export default function NewArtwork() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-dark text-white py-6 border-t border-neutral/25 text-center text-xs text-gray-500">
-        <p>© 2026 SANKOFA. Tous droits réservés.</p>
-      </footer>
-    </div>
+    </TransactionalLayout>
   );
 }

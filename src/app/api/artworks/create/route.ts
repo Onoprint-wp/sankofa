@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { artworkSchema } from "@/lib/validations";
+import { deepseek } from "@/lib/deepseek";
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +23,24 @@ export async function POST(request: Request) {
     }
 
     const artworkData = parseResult.data;
+
+    // Moderate artwork title
+    const moderationTitle = await deepseek.moderateContent(artworkData.title);
+    if (moderationTitle.isFlagged) {
+      return NextResponse.json(
+        { success: false, message: `Titre rejeté par le système de modération : ${moderationTitle.reason || "contenu inapproprié."}` },
+        { status: 400 }
+      );
+    }
+
+    // Moderate artwork description
+    const moderationDesc = await deepseek.moderateContent(artworkData.description);
+    if (moderationDesc.isFlagged) {
+      return NextResponse.json(
+        { success: false, message: `Description rejetée par le système de modération : ${moderationDesc.reason || "contenu inapproprié."}` },
+        { status: 400 }
+      );
+    }
 
     // Simulate saving to database
     // In actual production code, you would call:

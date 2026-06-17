@@ -9,6 +9,7 @@ export interface UserProfile {
   role: "buyer" | "artist" | "admin" | "curator";
   first_name: string | null;
   last_name: string | null;
+  is_suspended: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +26,7 @@ export interface ArtistProfile {
   mobile_money_phone: string | null;
   mobile_money_provider: "orange" | "mtn" | "moov" | "airtel" | null;
   rating_avg: number;
+  academy_completed: boolean;
 }
 
 export function useAuth() {
@@ -47,10 +49,24 @@ export function useAuth() {
         throw profileError;
       }
 
-      setProfile(profileData as UserProfile);
+      const userProfile = profileData as UserProfile;
+
+      if (userProfile.is_suspended) {
+        await supabase.auth.signOut();
+        setProfile(null);
+        setArtist(null);
+        setUser(null);
+        setSession(null);
+        if (typeof window !== "undefined") {
+          alert("Votre compte a été suspendu par l’administrateur.");
+        }
+        return;
+      }
+
+      setProfile(userProfile);
 
       // If the role is artist, fetch specific artist info from public.artists
-      if (profileData && profileData.role === "artist") {
+      if (userProfile && userProfile.role === "artist") {
         const { data: artistData, error: artistError } = await supabase
           .from("artists")
           .select("*")

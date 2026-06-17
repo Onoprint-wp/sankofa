@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { 
-  ArrowLeft, 
   CheckCircle2, 
   AlertTriangle, 
   ShieldCheck, 
@@ -18,6 +17,8 @@ import {
 import { kycSchema, type KycInput } from "@/lib/validations";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
+import TransactionalLayout from "@/components/layout/TransactionalLayout";
+import FileUpload from "@/components/ui/FileUpload";
 
 export default function BecomeArtist() {
   const { user, profile, artist, loading, refreshProfile } = useAuth();
@@ -29,6 +30,7 @@ export default function BecomeArtist() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<KycInput>({
     resolver: zodResolver(kycSchema),
@@ -37,6 +39,9 @@ export default function BecomeArtist() {
       selfie_url: "",
     },
   });
+
+  const cniUrl = watch("cni_url");
+  const selfieUrl = watch("selfie_url");
 
   const onSubmit = async (data: KycInput) => {
     if (!user) return;
@@ -81,13 +86,7 @@ export default function BecomeArtist() {
   // 2. Not Authenticated State
   if (!user || !profile) {
     return (
-      <div className="min-h-screen bg-secondary/15 text-dark flex flex-col justify-between font-sans">
-        <header className="border-b border-border bg-card">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-            <Link href="/" className="font-serif text-2xl font-bold tracking-wider text-primary">SANKOFA</Link>
-            <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors h-11"><ArrowLeft className="w-4 h-4" /> Retour</Link>
-          </div>
-        </header>
+      <TransactionalLayout backHref="/" backLabel="Retour">
         <main className="flex-1 max-w-md w-full mx-auto px-4 py-20">
           <div className="bg-card border border-border rounded-xl p-8 text-center relative overflow-hidden shadow-card">
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-primary" />
@@ -106,21 +105,14 @@ export default function BecomeArtist() {
             </div>
           </div>
         </main>
-        <footer className="bg-dark text-white py-6 text-center text-xs text-gray-500">© 2026 SANKOFA. Tous droits réservés.</footer>
-      </div>
+      </TransactionalLayout>
     );
   }
 
   // 3. Logged in but not an Artist (e.g. Buyer wanting to become artist)
   if (profile.role !== "artist") {
     return (
-      <div className="min-h-screen bg-secondary/15 text-dark flex flex-col justify-between font-sans">
-        <header className="border-b border-border bg-card">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-            <Link href="/" className="font-serif text-2xl font-bold tracking-wider text-primary">SANKOFA</Link>
-            <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors h-11"><ArrowLeft className="w-4 h-4" /> Retour</Link>
-          </div>
-        </header>
+      <TransactionalLayout backHref="/" backLabel="Retour">
         <main className="flex-1 max-w-md w-full mx-auto px-4 py-20">
           <div className="bg-card border border-border rounded-xl p-8 text-center relative overflow-hidden shadow-card">
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-primary" />
@@ -134,8 +126,7 @@ export default function BecomeArtist() {
             </Link>
           </div>
         </main>
-        <footer className="bg-dark text-white py-6 text-center text-xs text-gray-500">© 2026 SANKOFA. Tous droits réservés.</footer>
-      </div>
+      </TransactionalLayout>
     );
   }
 
@@ -143,15 +134,7 @@ export default function BecomeArtist() {
   const kycStatus = artist?.kyc_status || "unsubmitted";
 
   return (
-    <div className="min-h-screen bg-secondary/15 text-dark flex flex-col justify-between font-sans">
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          <Link href="/" className="font-serif text-2xl font-bold tracking-wider text-primary">SANKOFA</Link>
-          <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors h-11">
-            <ArrowLeft className="w-4 h-4" /> Retour au Tableau de bord
-          </Link>
-        </div>
-      </header>
+    <TransactionalLayout backHref="/" backLabel="Retour au Tableau de bord">
 
       <main className="flex-1 max-w-xl w-full mx-auto px-4 py-12">
         <div className="bg-card border border-border/80 rounded-xl shadow-card p-6 sm:p-10 relative overflow-hidden">
@@ -174,12 +157,30 @@ export default function BecomeArtist() {
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
               <CheckCircle2 className="w-16 h-16 text-success mx-auto mb-4" />
               <h2 className="text-xl font-bold text-success-dark mb-3">Identité Vérifiée</h2>
-              <p className="text-gray-700 text-sm leading-relaxed mb-6">
-                Félicitations ! Votre profil artiste a été approuvé. Vous pouvez maintenant publier vos œuvres et recevoir des paiements.
-              </p>
-              <Link href="/dashboard/artworks/new" className="block w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded shadow transition-all h-11 flex items-center justify-center">
-                Déposer une œuvre
-              </Link>
+              {artist?.academy_completed ? (
+                <>
+                  <p className="text-gray-700 text-sm leading-relaxed mb-6 font-medium">
+                    Félicitations ! Votre profil artiste a été approuvé et vous êtes certifié SANKOFA. Vous pouvez maintenant publier vos œuvres.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Link href="/dashboard/artworks/new" className="bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded shadow transition-all h-11 flex items-center justify-center">
+                      Déposer une œuvre
+                    </Link>
+                    <Link href="/dashboard/academy" className="border border-primary text-primary hover:bg-primary/5 font-medium py-3 px-6 rounded transition-all h-11 flex items-center justify-center">
+                      Revoir les formations
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-700 text-sm leading-relaxed mb-6 font-medium">
+                    Votre identité a été approuvée ! Pour finaliser votre inscription et pouvoir publier vos œuvres, veuillez compléter la formation obligatoire de l’Académie SANKOFA.
+                  </p>
+                  <Link href="/dashboard/academy" className="block w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded shadow transition-all h-11 flex items-center justify-center">
+                    Accéder à l’Académie
+                  </Link>
+                </>
+              )}
             </div>
           ) : kycStatus === "pending" ? (
             /* PENDING REVIEW STATE */
@@ -221,21 +222,19 @@ export default function BecomeArtist() {
                 </div>
               )}
 
-              {/* CNI Input Link */}
+              {/* CNI Upload */}
               <div>
-                <label htmlFor="cni_url" className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
-                  Lien photo de la CNI / Passeport <span className="text-primary">*</span>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
+                  Photo de la CNI / Passeport <span className="text-primary">*</span>
                 </label>
-                <input
-                  id="cni_url"
-                  type="text"
-                  {...register("cni_url")}
-                  className={`w-full border rounded px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 h-11 ${
-                    errors.cni_url
-                      ? "border-error focus:ring-error/25"
-                      : "border-border focus:ring-primary/25 focus:border-primary"
-                  }`}
-                  placeholder="https://exemple.com/ma-cni.jpg"
+                <input type="hidden" {...register("cni_url")} />
+                <FileUpload
+                  bucket="kyc-documents"
+                  value={cniUrl}
+                  onChange={(val) => setValue("cni_url", val, { shouldValidate: true })}
+                  label="Téléverser votre CNI / Passeport"
+                  accept="image/jpeg,image/png,application/pdf"
+                  maxSizeMB={10}
                 />
                 {errors.cni_url && (
                   <p className="text-error text-xs mt-1.5 flex items-center gap-1">
@@ -245,21 +244,19 @@ export default function BecomeArtist() {
                 )}
               </div>
 
-              {/* Selfie Input Link */}
+              {/* Selfie Upload */}
               <div>
-                <label htmlFor="selfie_url" className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
-                  Lien photo de votre Selfie avec l’œuvre <span className="text-primary">*</span>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral mb-2">
+                  Photo de votre Selfie avec l’œuvre <span className="text-primary">*</span>
                 </label>
-                <input
-                  id="selfie_url"
-                  type="text"
-                  {...register("selfie_url")}
-                  className={`w-full border rounded px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 h-11 ${
-                    errors.selfie_url
-                      ? "border-error focus:ring-error/25"
-                      : "border-border focus:ring-primary/25 focus:border-primary"
-                  }`}
-                  placeholder="https://exemple.com/mon-selfie.jpg"
+                <input type="hidden" {...register("selfie_url")} />
+                <FileUpload
+                  bucket="kyc-documents"
+                  value={selfieUrl}
+                  onChange={(val) => setValue("selfie_url", val, { shouldValidate: true })}
+                  label="Téléverser un Selfie avec l’œuvre"
+                  accept="image/jpeg,image/png"
+                  maxSizeMB={10}
                 />
                 <p className="text-[11px] text-neutral mt-2">
                   Le selfie doit montrer clairement votre visage à côté d’une de vos œuvres d’art.
@@ -292,9 +289,6 @@ export default function BecomeArtist() {
         </div>
       </main>
 
-      <footer className="bg-dark text-white py-6 border-t border-neutral/25 text-center text-xs text-gray-500">
-        <p>© 2026 SANKOFA. Tous droits réservés.</p>
-      </footer>
-    </div>
+    </TransactionalLayout>
   );
 }
